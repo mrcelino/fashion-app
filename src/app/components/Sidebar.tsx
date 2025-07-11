@@ -9,7 +9,7 @@ export function Sidebar() {
   const navItems = [
     { href: "/dashboard", label: "Beranda", icon: "/nav-home.svg" },
     { href: "/dashboard/listings", label: "Etalaseku", icon: "/nav-listings.svg" },
-    { href: "/dashboard/activity", label: "Manajemen & Riwayat", icon: "/nav-activity.svg" },
+    { href: "/dashboard/activity", label: "Aktivitas", icon: "/nav-activity.svg" },
     { href: "/dashboard/add-items", label: "Tambah Item", icon: "/nav-add.svg" },
     { href: "/dashboard/profile", label: "Pengaturan Akun", icon: "/nav-profile.svg" },
   ];

@@ -12,7 +12,7 @@ export function Navbar() {
 
   return (
     <div className="relative">
-      <div className="navbar fixed top-0 left-0 w-full z-50 p-2 shadow-sm flex items-center justify-between px-4 md:px-8">
+      <div className="navbar bg-white fixed top-0 left-0 w-full z-50 p-2 shadow-sm flex items-center justify-between px-4 md:px-8">
         {/* Logo */}
         <div className="flex items-center space-x-4">
           <Info />
