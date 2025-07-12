@@ -61,7 +61,7 @@ function Profile({ user, loading, handleLogout }: any) {
       <div
         tabIndex={0}
         role="button"
-        className="btn rounded-full p-0 size-12 overflow-hidden"
+        className="btn rounded-full bg-white p-0 size-12 overflow-hidden"
       >
         <img
           src="/user.png"
