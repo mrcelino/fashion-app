@@ -12,7 +12,7 @@ export function Navbar() {
 
   return (
     <div className="relative">
-      <div className="navbar bg-white fixed top-0 left-0 w-full z-50 p-2 shadow-sm flex items-center justify-between px-4 md:px-8">
+      <div className="navbar bg-[#3D74B6] fixed top-0 left-0 w-full z-50 p-2 shadow-sm flex items-center justify-between px-4 md:px-8">
         {/* Logo */}
         <div className="flex items-center space-x-4">
           <Info />
@@ -47,7 +47,7 @@ export function Navbar() {
 function Info() {
   return (
     <>
-      <Link href="/dashboard" className="text-base md:text-xl font-semibold">
+      <Link href="/dashboard" className="text-base text-white md:text-xl font-semibold">
         SatuLemari
       </Link>
     </>
@@ -61,11 +61,11 @@ function Profile({ user, loading, handleLogout }: any) {
       <div
         tabIndex={0}
         role="button"
-        className="btn rounded-full bg-white p-0 size-12 overflow-hidden"
+        className="btn rounded-full bg-white p-0 size-10 overflow-hidden"
       >
         <img
           src="/user.png"
-          className="size-11 object-cover"
+          className="size-10 object-cover"
         />
       </div>
       <ul

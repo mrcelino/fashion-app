@@ -15,7 +15,7 @@ export function Sidebar() {
   ];
 
   return (
-    <div className="fixed pt-24 left-0 h-full w-80 p-6 text-black overflow-y-auto bg-white">
+    <div className="fixed pt-24 left-0 h-full w-80 p-6 text-white overflow-y-auto bg-[#3D74B6]">
       <nav>
         <ul className="space-y-2">
           {navItems.map(({ href, label, icon }) => {
@@ -28,11 +28,11 @@ export function Sidebar() {
               <li key={href}>
                 <Link
                   href={href}
-                  className="relative flex items-center p-3 rounded-xl transition duration-300 group"
+                  className="relative flex items-center p-3 rounded-xl transition duration-300 group hover:bg-[#2D5A8B]"
                 >
                   <span
-                    className={`absolute inset-0 rounded-xl bg-black transition-opacity duration-300 ${
-                      isActive ? "opacity-10" : "opacity-0 group-hover:opacity-10"
+                    className={`absolute inset-0 rounded-xl bg-[#5B90D1] transition-opacity duration-300   ${
+                      isActive ? "opacity-100" : "opacity-0 "
                     }`}
                   ></span>
                   <span className="relative flex space-x-5 items-center">
