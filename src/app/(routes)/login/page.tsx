@@ -36,7 +36,7 @@ export default function LoginPage() {
       console.log("Response verify:", response.status, data);
 
       if (!response.ok) throw new Error(data.error || "Token verification failed");
-
+      localStorage.setItem("access_token", data.data.access_token);
       router.push("/dashboard");
     } catch (error) {
       if (error instanceof Error) setMessage(error.message);
@@ -78,7 +78,7 @@ export default function LoginPage() {
 
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Token verification failed");
-
+      localStorage.setItem("access_token", data.data.access_token);
       router.push("/dashboard");
     } catch (error) {
       if (error instanceof Error) setMessage(error.message);
