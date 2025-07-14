@@ -1,23 +1,8 @@
 "use client";
-import React, { useState, useEffect, useMemo } from 'react';
-import Image from 'next/image';
-
-// --- Tipe Data & Komponen ---
-
-type Product = {
-  id: string;
-  name: string;
-  type: 'donation' | 'rental';
-  description: string;
-  size: string;
-  color: string;
-  available_quantity: number;
-  total_quantity: number;
-  images: string[];
-  status: 'active' | 'inactive' | 'out_of_stock';
-  price?: number;
-  category_id?: string;
-};
+import React, { useState, useEffect} from 'react';
+import { CustomDropdown } from '@/app/components/CustomDropdown';
+import { Spinner } from '@/app/components/Spinner';
+import { ProductCard, Product } from '@/app/components/ProductCard';
 
 type FilterState = {
   status: string;
@@ -28,179 +13,6 @@ type FilterState = {
   sortOrder: 'desc' | 'asc';
   search: string;
 };
-
-type ProductCardProps = {
-  product: Product;
-};
-
-// Komponen Spinner dengan animasi yang lebih smooth
-const Spinner = () => (
-  <div className="flex flex-col justify-center items-center w-full h-64">
-    <div className="relative">
-      <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-200"></div>
-      <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent absolute top-0 left-0"></div>
-    </div>
-    <p className="mt-4 text-gray-600 animate-pulse">Memuat produk...</p>
-  </div>
-);
-
-// Komponen Kartu Produk dengan desain yang lebih modern
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
-  
-  const imageUrl = product.images && product.images.length > 0 ? product.images[0] : "/shirt.webp";
-
-  const getStatusConfig = (status: string) => {
-    switch (status) {
-      case 'active': 
-        return { 
-          color: 'bg-emerald-500', 
-          text: 'Aktif', 
-          textColor: 'text-emerald-700',
-          bgColor: 'bg-emerald-50',
-          icon: '✓'
-        };
-      case 'inactive': 
-        return { 
-          color: 'bg-red-500', 
-          text: 'Tidak Aktif', 
-          textColor: 'text-red-700',
-          bgColor: 'bg-red-50',
-          icon: '⏸'
-        };
-      case 'out_of_stock': 
-        return { 
-          color: 'bg-gray-400', 
-          text: 'Stok Habis', 
-          textColor: 'text-gray-700',
-          bgColor: 'bg-gray-50',
-          icon: '!'
-        };
-      default: 
-        return { 
-          color: 'bg-gray-400', 
-          text: status, 
-          textColor: 'text-gray-700',
-          bgColor: 'bg-gray-50',
-          icon: '?'
-        };
-    }
-  };
-
-  const statusConfig = getStatusConfig(product.status);
-  const stockPercentage = (product.available_quantity / product.total_quantity) * 100;
-
-  return (
-    <div 
-      className={`group relative bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1 ${
-        isHovered ? 'scale-[1.02]' : 'scale-100'
-      }`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {/* Badge untuk tipe produk */}
-      <div className="absolute top-3 left-3 z-10">
-        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-          product.type === 'rental' 
-            ? 'bg-purple-100 text-purple-700' 
-            : 'bg-blue-100 text-blue-700'
-        }`}>
-          {product.type === 'rental' ? 'Sewa' : 'Donasi'}
-        </span>
-      </div>
-
-      {/* Status Badge */}
-      <div className="absolute top-3 right-3 z-10">
-        <div className={`px-2 py-1 rounded-full text-xs font-medium ${statusConfig.bgColor} ${statusConfig.textColor} flex items-center gap-1`}>
-          <span>{statusConfig.icon}</span>
-          <span>{statusConfig.text}</span>
-        </div>
-      </div>
-
-      {/* Image Container */}
-      <div className="relative h-48 bg-gray-100 overflow-hidden">
-        {!imageLoaded && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="animate-pulse bg-gray-200 w-full h-full"></div>
-          </div>
-        )}
-        <Image 
-          src={imageUrl} 
-          alt={product.name} 
-          width={300} 
-          height={200} 
-          className={`w-full h-full object-cover transition-all duration-500 ${
-            imageLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
-          } group-hover:scale-110`}
-          onLoad={() => setImageLoaded(true)}
-        />
-        
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-      </div>
-
-      {/* Content */}
-      <div className="p-4">
-        <h3 className="font-semibold text-lg text-gray-900 mb-2 line-clamp-1 group-hover:text-blue-600 transition-colors">
-          {product.name}
-        </h3>
-        
-        {/* Price & Details */}
-        <div className="flex items-center gap-2 mb-3">
-          {product.type === 'rental' && product.price && (
-            <span className="text-xl font-bold text-green-600">
-              Rp{product.price.toLocaleString('id-ID')}
-            </span>
-          )}
-          <div className="flex items-center gap-3 text-sm text-gray-600">
-            <span className="bg-gray-100 px-2 py-1 rounded-md">
-              {product.size}
-            </span>
-            <div className="flex items-center gap-1">
-              <div 
-                className="w-3 h-3 rounded-full border border-gray-300"
-                style={{ backgroundColor: product.color }}
-              ></div>
-              <span className="capitalize">{product.color}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Stock Info */}
-        <div className="mb-4">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-gray-600">Stok tersedia</span>
-            <span className="text-sm font-semibold text-gray-900">
-              {product.available_quantity} / {product.total_quantity}
-            </span>
-          </div>
-          
-          {/* Stock Progress Bar */}
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
-              className={`h-2 rounded-full transition-all duration-500 ${
-                stockPercentage > 50 ? 'bg-green-500' : 
-                stockPercentage > 20 ? 'bg-yellow-500' : 'bg-red-500'
-              }`}
-              style={{ width: `${stockPercentage}%` }}
-            ></div>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex gap-2 pt-3 border-t border-gray-100">
-          <button className="flex-1 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 py-2 px-3 rounded-lg transition-all duration-200 font-medium">
-            📊 Aktivitas
-          </button>
-          <button className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm py-2 px-3 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg">
-            ⚙️ Kelola
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // --- Komponen Konten Tab dengan UI yang diperbaiki ---
 const TabContent = ({ tabType }: { tabType: 'Donasi' | 'Sewa' }) => {
@@ -241,7 +53,14 @@ const TabContent = ({ tabType }: { tabType: 'Donasi' | 'Sewa' }) => {
         if (filters.search) params.append('search', filters.search);
         params.append('sort_order', filters.sortOrder);
         
-        const response = await fetch(`${baseUrl}/items?${params.toString()}`);
+        const token = localStorage.getItem('access_token');
+
+        const response = await fetch(`/api/my-items?${params.toString()}`, {
+          headers: {
+            'Authorization': token ? `Bearer ${token}` : '',
+            'Content-Type': 'application/json',
+          },
+        });
         if (!response.ok) throw new Error('Gagal mengambil data dari server');
         
         const result = await response.json();
@@ -264,8 +83,15 @@ const TabContent = ({ tabType }: { tabType: 'Donasi' | 'Sewa' }) => {
   useEffect(() => {
     const fetchOptions = async () => {
       try {
-        const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-        const response = await fetch(`${baseUrl}/items?type=${tabType === 'Donasi' ? 'donation' : 'rental'}`);
+        const apiType = tabType === 'Donasi' ? 'donation' : 'rental';
+        const token = localStorage.getItem('access_token');
+
+        const response = await fetch(`/api/my-items?type=${apiType}`, {
+          headers: {
+            'Authorization': token ? `Bearer ${token}` : '',
+            'Content-Type': 'application/json',
+          },
+        });
         const result = await response.json();
         if (result.success && Array.isArray(result.data)) {
           const sizes = [...new Set(result.data.map((item: Product) => item.size))] as string[];
@@ -302,7 +128,6 @@ const TabContent = ({ tabType }: { tabType: 'Donasi' | 'Sewa' }) => {
   const getStatusLabel = (status: string) => {
     switch (status) {
       case 'active': return 'Aktif';
-      case 'inactive': return 'Tidak Aktif';
       case 'out_of_stock': return 'Stok Habis';
       default: return '';
     }
@@ -339,22 +164,12 @@ const TabContent = ({ tabType }: { tabType: 'Donasi' | 'Sewa' }) => {
   const activeFiltersCount = Object.values(filters).filter(value => value !== '' && value !== 'desc').length;
 
   return (
-    <div className="space-y-6">
-      {/* Header Description */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
-        <p className="text-gray-700 leading-relaxed">
-          {tabType === 'Donasi' 
-            ? '🎁 Kelola semua item donasi Anda dengan mudah. Pantau stok, status, dan aktivitas dalam satu tempat.'
-            : '💰 Atur inventaris rental Anda dengan efisien. Lacak harga, ketersediaan, dan performa bisnis.'
-          }
-        </p>
-      </div>
-      
+    <div className="space-y-6">      
       {/* Search Bar dengan desain yang lebih modern */}
       <div className="relative">
         <input
           type="text"
-          className="w-full pl-4 pr-4 py-4 text-gray-900 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
+          className="w-full pl-4 pr-4 py-4 text-gray-900 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200 shadow-sm hover:shadow-md"
           placeholder={`🔍 Cari item berdasarkan nama...`}
           value={filters.search}
           onChange={(e) => handleFilterChange('search', e.target.value)}
@@ -396,17 +211,19 @@ const TabContent = ({ tabType }: { tabType: 'Donasi' | 'Sewa' }) => {
           onClick={clearFilters}
           className="px-4 py-2 bg-white text-gray-700 border-2 border-gray-200 rounded-xl hover:border-gray-300 transition-all duration-200 font-medium"
         >
-          🗑️ Reset
+          Semua
         </button>
 
-        <select 
+        <CustomDropdown
+          options={[
+            { label: 'Terbaru', value: 'desc' },
+            { label: 'Terlama', value: 'asc' },
+          ]}
           value={filters.sortOrder}
-          onChange={(e) => handleFilterChange('sortOrder', e.target.value)}
-          className="px-4 py-2 bg-white text-gray-700 border-2 border-gray-200 rounded-xl hover:border-gray-300 transition-all duration-200 font-medium"
-        >
-          <option value="desc">📅 Terbaru</option>
-          <option value="asc">📅 Terlama</option>
-        </select>
+          className="w-36" 
+          onChange={(val) => handleFilterChange('sortOrder', val)}
+        />
+
       </div>
 
       {/* Advanced Filters Panel */}
@@ -416,49 +233,42 @@ const TabContent = ({ tabType }: { tabType: 'Donasi' | 'Sewa' }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             
             {/* Status Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-              <select
-                value={filters.status}
-                onChange={(e) => handleFilterChange('status', e.target.value)}
-                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">Semua Status</option>
-                <option value="active">✅ Aktif</option>
-                <option value="inactive">⏸️ Tidak Aktif</option>
-                <option value="out_of_stock">❌ Stok Habis</option>
-              </select>
-            </div>
+            <CustomDropdown
+              label="Status"
+              options={[
+                { label: 'Semua Status', value: '' },
+                { label: '✅ Aktif', value: 'active' },
+                { label: '❌ Stok Habis', value: 'out_of_stock' },
+              ]}
+              value={filters.status}
+              onChange={(val) => handleFilterChange('status', val)}
+            />
 
             {/* Size Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Ukuran</label>
-              <select
-                value={filters.size}
-                onChange={(e) => handleFilterChange('size', e.target.value)}
-                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">Semua Ukuran</option>
-                {availableSizes.map((size) => (
-                  <option key={size} value={size}>{size}</option>
-                ))}
-              </select>
-            </div>
+            <CustomDropdown
+              label="Ukuran"
+              options={[
+                { label: 'Semua Ukuran', value: '' },
+                ...availableSizes.map((size) => ({ label: size, value: size }))
+              ]}
+              value={filters.size}
+              onChange={(val) => handleFilterChange('size', val)}
+            />
+
 
             {/* Color Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Warna</label>
-              <select
-                value={filters.color}
-                onChange={(e) => handleFilterChange('color', e.target.value)}
-                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">Semua Warna</option>
-                {availableColors.map((color) => (
-                  <option key={color} value={color} className="capitalize">{color}</option>
-                ))}
-              </select>
-            </div>
+            <CustomDropdown
+              label="Warna"
+              options={[
+                { label: 'Semua Warna', value: '' },
+                ...availableColors.map((color) => ({
+                  label: color.charAt(0).toUpperCase() + color.slice(1),
+                  value: color,
+                })),
+              ]}
+              value={filters.color}
+              onChange={(val) => handleFilterChange('color', val)}
+            />
 
             {/* Price Range (only for rental) */}
             {tabType === 'Sewa' && (
@@ -467,20 +277,58 @@ const TabContent = ({ tabType }: { tabType: 'Donasi' | 'Sewa' }) => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Harga Minimum</label>
                   <input
                     type="number"
+                    inputMode="numeric"
                     value={filters.minPrice}
-                    onChange={(e) => handleFilterChange('minPrice', e.target.value)}
+                    onChange={(e) => {
+                      const onlyNums = e.target.value.replace(/\D/g, ''); // hapus semua yang bukan angka
+                      handleFilterChange('minPrice', onlyNums);
+                    }}
                     placeholder="0"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    onKeyDown={(e) => {
+                      // Hanya izinkan angka dan tombol navigasi (Backspace, Delete, Arrow keys, dll)
+                      if (
+                        ['e', 'E', '+', '-', '.', ',', ' '].includes(e.key) ||
+                        (e.key.length === 1 && !/\d/.test(e.key))
+                      ) {
+                        e.preventDefault();
+                      }
+                    }}
+                    onPaste={(e) => {
+                      const paste = e.clipboardData.getData('text');
+                      if (!/^\d+$/.test(paste)) {
+                        e.preventDefault(); // cegah jika yang dipaste bukan angka murni
+                      }
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                   />
                 </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Harga Maksimum</label>
                   <input
                     type="number"
+                    inputMode="numeric"
                     value={filters.maxPrice}
-                    onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
+                    onChange={(e) => {
+                      const onlyNums = e.target.value.replace(/\D/g, '');
+                      handleFilterChange('maxPrice', onlyNums);
+                    }}
                     placeholder="1000000"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    onKeyDown={(e) => {
+                      if (
+                        ['e', 'E', '+', '-', '.', ',', ' '].includes(e.key) ||
+                        (e.key.length === 1 && !/\d/.test(e.key))
+                      ) {
+                        e.preventDefault();
+                      }
+                    }}
+                    onPaste={(e) => {
+                      const paste = e.clipboardData.getData('text');
+                      if (!/^\d+$/.test(paste)) {
+                        e.preventDefault();
+                      }
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                   />
                 </div>
               </>
@@ -531,36 +379,36 @@ export default function Page() {
   const [activeTab, setActiveTab] = React.useState<'Donasi' | 'Sewa'>('Donasi');
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="min-h-screen">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">📦 Inventaris</h1>
+        <div className="mb-4">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Inventaris</h1>
           <p className="text-gray-600">Kelola semua produk donasi dan rental Anda</p>
         </div>
 
         {/* Tab Navigation */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-2 mb-8">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-2 mb-4 w-1/2 mx-auto">
           <div className="flex">
             <button
               onClick={() => setActiveTab('Donasi')}
               className={`flex-1 px-6 py-3 font-semibold text-base rounded-xl transition-all duration-300 ${
                 activeTab === 'Donasi' 
-                  ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25' 
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  ? 'bg-[#3D74B6] text-white shadow-lg shadow-blue-500/25' 
+                  : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              🎁 Donasi
+              Donasi
             </button>
             <button
               onClick={() => setActiveTab('Sewa')}
               className={`flex-1 px-6 py-3 font-semibold text-base rounded-xl transition-all duration-300 ${
                 activeTab === 'Sewa' 
-                  ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25' 
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  ? 'bg-[#3D74B6] to-blue-600 text-white shadow-lg shadow-blue-500/25' 
+                  : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              💰 Sewa
+              Sewa
             </button>
           </div>
         </div>
