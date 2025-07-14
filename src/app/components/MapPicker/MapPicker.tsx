@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { LatLng } from './types';
 
 const MapClient = dynamic(() => import('./MapContainerClient'), { ssr: false });
@@ -9,20 +9,32 @@ const MapClient = dynamic(() => import('./MapContainerClient'), { ssr: false });
 // Default: Sleman / UGM
 const DEFAULT_LOCATION = { lat: -7.7749, lng: 110.3740 };
 
-export default function MapPicker() {
+type MapPickerProps = {
+  initialLocation?: LatLng | null;
+  onConfirm?: (location: LatLng) => void;
+};
+
+export default function MapPicker({ initialLocation, onConfirm }: MapPickerProps) {
   const [isMapOpen, setIsMapOpen] = useState(false);
   const [location, setLocation] = useState<LatLng | null>(null);
   const [tempLocation, setTempLocation] = useState<LatLng>(DEFAULT_LOCATION);
 
   const handleOpenMap = () => {
-    setTempLocation(location || DEFAULT_LOCATION); // gunakan lokasi terakhir kalau ada
+    setTempLocation(location || DEFAULT_LOCATION);
     setIsMapOpen(true);
   };
 
   const handleConfirm = () => {
-    setLocation(tempLocation); // hanya update saat klik Simpan
+    setLocation(tempLocation);
+    onConfirm?.(tempLocation);
     setIsMapOpen(false);
   };
+
+    useEffect(() => {
+    if (initialLocation) {
+      setLocation(initialLocation);
+    }
+  }, [initialLocation]);
 
   return (
     <>
