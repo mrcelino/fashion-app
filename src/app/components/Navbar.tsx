@@ -14,7 +14,7 @@ export function Navbar() {
 
   return (
     <div className="relative">
-      <div className="navbar bg-[#3D74B6] fixed top-0 left-0 w-full z-50 p-2 shadow-sm flex items-center justify-between px-4 md:px-8">
+      <div className="navbar bg-white fixed top-0 left-0 w-full z-50 p-2 shadow-sm flex items-center justify-between px-4 md:px-8">
         {/* Logo */}
         <div className="flex items-center space-x-4">
           <Info />
@@ -49,7 +49,7 @@ export function Navbar() {
 function Info() {
   return (
     <>
-      <Link href="/dashboard" className="text-base text-white md:text-xl font-semibold">
+      <Link href="/dashboard" className="text-base text-black md:text-xl font-semibold">
         SatuLemari
       </Link>
     </>
@@ -78,9 +78,9 @@ function Profile() {
     <div className="relative">
       <button
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        className="flex items-center space-x-2 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors duration-200 focus:outline-none"
+        className="flex items-center space-x-2 p-2 rounded-full bg-white border-2 border-gray-200 hover:bg-gray-100 transition-colors duration-200 focus:outline-none"
       >
-        <div className="w-8 h-8 rounded-full overflow-hidden bg-white">
+        <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200">
           <img
             src={user?.photo || "/user.png"}
             alt="Profile"
@@ -88,7 +88,7 @@ function Profile() {
           />
         </div>
         <svg
-          className="w-4 h-4 text-white"
+          className="w-4 h-4 text-black"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
