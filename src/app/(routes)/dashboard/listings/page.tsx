@@ -219,9 +219,9 @@ const TabContent = ({ tabType }: { tabType: 'Donasi' | 'Sewa' }) => {
             { label: 'Terbaru', value: 'desc' },
             { label: 'Terlama', value: 'asc' },
           ]}
-          value={filters.sortOrder}
+          selectedValue={filters.sortOrder}
           className="w-36" 
-          onChange={(val) => handleFilterChange('sortOrder', val)}
+          onSelect={(val) => handleFilterChange('sortOrder', val)}
         />
 
       </div>
@@ -240,8 +240,8 @@ const TabContent = ({ tabType }: { tabType: 'Donasi' | 'Sewa' }) => {
                 { label: '✅ Aktif', value: 'active' },
                 { label: '❌ Stok Habis', value: 'out_of_stock' },
               ]}
-              value={filters.status}
-              onChange={(val) => handleFilterChange('status', val)}
+              selectedValue={filters.status}
+              onSelect={(val) => handleFilterChange('status', val)}
             />
 
             {/* Size Filter */}
@@ -251,8 +251,8 @@ const TabContent = ({ tabType }: { tabType: 'Donasi' | 'Sewa' }) => {
                 { label: 'Semua Ukuran', value: '' },
                 ...availableSizes.map((size) => ({ label: size, value: size }))
               ]}
-              value={filters.size}
-              onChange={(val) => handleFilterChange('size', val)}
+              selectedValue={filters.size}
+              onSelect={(val) => handleFilterChange('size', val)}
             />
 
 
@@ -261,13 +261,15 @@ const TabContent = ({ tabType }: { tabType: 'Donasi' | 'Sewa' }) => {
               label="Warna"
               options={[
                 { label: 'Semua Warna', value: '' },
-                ...availableColors.map((color) => ({
-                  label: color.charAt(0).toUpperCase() + color.slice(1),
-                  value: color,
-                })),
+                ...availableColors
+                  .filter((color): color is string => typeof color === 'string') // pastikan hanya string
+                  .map((color) => ({
+                    label: color.charAt(0).toUpperCase() + color.slice(1),
+                    value: color,
+                  }))
               ]}
-              value={filters.color}
-              onChange={(val) => handleFilterChange('color', val)}
+              selectedValue={filters.color}
+              onSelect={(val) => handleFilterChange('color', val)}
             />
 
             {/* Price Range (only for rental) */}

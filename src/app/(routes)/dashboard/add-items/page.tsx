@@ -1,187 +1,230 @@
-"use client"; // Diperlukan jika menggunakan hook seperti useState di Next.js App Router
+"use client";
 
-import type { FC } from 'react';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import Toast from '../../../components/Toast';
+import { InputField } from '@/app/components/InputField';
+import { CustomDropdown } from '@/app/components/CustomDropdown';
 
-// --- Tipe Data ---
-type InputFieldProps = {
-  label: string;
-  placeholder: string;
-  type?: string;
+// Tipe
+type Category = {
+  id: string;
+  name: string;
 };
 
-type CustomDropdownProps = {
-  label: string;
-  placeholder: string;
-  options: string[];
-  selectedValue: string;
-  onSelect: (value: string) => void;
-};
+const Page = () => {
+  const [jenisBarang, setJenisBarang] = useState('');
+  const [nama, setNama] = useState('');
+  const [kategori, setKategori] = useState('');
+  const [kategoriList, setKategoriList] = useState<Category[]>([]);
+  const [kondisi, setKondisi] = useState('');
+  const [size, setSize] = useState('');
+  const [color, setColor] = useState('');
+  const [jumlah, setJumlah] = useState<number>(1);
+  const [harga, setHarga] = useState<number>(0);
+  const [deskripsi, setDeskripsi] = useState('');
+  const [images, setImages] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
-// --- Komponen ---
-
-// InputField tetap sama, tidak ada perubahan
-const InputField: FC<InputFieldProps> = ({ label, placeholder, type = 'text' }) => (
-  <div className="flex flex-col gap-2">
-    <label className="text-sm font-medium text-gray-700">{label}</label>
-    <input
-      type={type}
-      placeholder={placeholder}
-      className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition outline-0"
-    />
-  </div>
-);
-
-// Komponen SelectField diganti dengan CustomDropdown
-const CustomDropdown: FC<CustomDropdownProps> = ({ label, placeholder, options, selectedValue, onSelect }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Hook untuk menutup dropdown saat klik di luar area dropdown
+  // Fetch kategori
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch('/api/categories');
+        const result = await res.json();
+        if (result.success) {
+          setKategoriList(result.data);
+        }
+      } catch (err) {
+        console.error('Gagal fetch kategori', err);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [dropdownRef]);
+    fetchCategories();
+  }, []);
 
+  // POST handler
+  const handleSubmit = async () => {
+  setErrorMessage(''); // reset error
 
-  const handleSelect = (option: string) => {
-    onSelect(option);
-    setIsOpen(false);
+  if (!jenisBarang) return setErrorMessage('Jenis barang wajib dipilih.');
+  if (!nama.trim()) return setErrorMessage('Nama barang wajib diisi.');
+  if (!kategori) return setErrorMessage('Kategori wajib dipilih.');
+  if (!kondisi) return setErrorMessage('Kondisi wajib dipilih.');
+  if (!size.trim()) return setErrorMessage('Ukuran (size) wajib diisi.');
+  if (!color.trim()) return setErrorMessage('Warna wajib diisi.');
+  if (!jumlah || jumlah <= 0) return setErrorMessage('Jumlah harus lebih dari 0.');
+  if (jenisBarang === 'Sewa' && (!harga || harga <= 0)) return setErrorMessage('Harga sewa wajib diisi dan lebih dari 0.');
+  if (!images) return setErrorMessage('Gambar barang wajib diunggah.');
+  if (!deskripsi.trim()) return setErrorMessage('Deskripsi wajib diisi.');
+    const formData = new FormData();
+    const token = localStorage.getItem('access_token');
+
+    const selectedKategori = kategoriList.find((cat) => cat.name === kategori);
+
+    formData.append('type', jenisBarang === 'Sewa' ? 'rental' : 'donation');
+    formData.append('name', nama);
+    formData.append('category_id', selectedKategori?.id || '');
+    formData.append('condition', kondisi);
+    formData.append('size', size);
+    formData.append('color', color);
+    formData.append('total_quantity', jumlah.toString());
+    if (images) formData.append('images', images);
+    formData.append('description', deskripsi);
+    if (jenisBarang === 'Sewa') formData.append('price', harga.toString());
+
+    try {
+      const response = await fetch('/api/items', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      const result = await response.json();
+      if (response.ok && result.success) {
+        setToast({ message: 'Item berhasil disimpan!', type: 'success' });
+      } else {
+        setToast({ message: result.message || 'Gagal menyimpan item.', type: 'error' });
+      }
+    } catch (err) {
+      console.error('Gagal mengirim data', err);
+      setToast({ message: 'Terjadi kesalahan saat mengirim data.', type: 'error' });
+    }
   };
 
-  return (
-    <div className="flex flex-col gap-2 relative" ref={dropdownRef}>
-      <label className="text-sm font-medium text-gray-700">{label}</label>
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full border border-gray-300 rounded-lg p-3 text-sm text-left flex justify-between items-center focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-      >
-        <span className={selectedValue ? 'text-gray-900' : 'text-gray-400'}>
-          {selectedValue || placeholder}
-        </span>
-        {/* Ikon panah ke bawah */}
-        <svg className={`w-4 h-4 text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-      </button>
+  const kondisiOptions = [
+  { label: 'Sangat Baik', value: 'excellent' },
+  { label: 'Baik', value: 'good' },
+  { label: 'Cukup', value: 'fair' },
+  ];
 
-      {isOpen && (
-        <div className="absolute top-full mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-          {options.map((option) => (
-            <div
-              key={option}
-              onClick={() => handleSelect(option)}
-              className="p-3 text-sm text-gray-800 hover:bg-gray-100 cursor-pointer"
-            >
-              {option}
-            </div>
-          ))}
-        </div>
+  return (
+    
+    <div className="flex flex-col justify-center gap-4">
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
       )}
-    </div>
-  );
-};
+      <div className='flex flex-row justify-between'>
+        <h2 className="text-2xl font-bold text-gray-800">Tambah item</h2>
+        {errorMessage && (
+          <div className="text-red-600 text-sm font-medium bg-red-50 border border-red-200 px-4 py-2 rounded-lg">
+            {errorMessage}
+          </div>
+        )}
+      </div>
 
-
-// --- Komponen Halaman Utama ---
-const Page: FC = () => {
-  // State untuk menyimpan nilai pilihan dropdown
-  const [jenisBarang, setJenisBarang] = useState('');
-  const [kategori, setKategori] = useState('');
-  
-  return (
-      <div className="flex flex-col justify-center gap-4 ">
-      <h2 className="text-2xl font-bold text-gray-800">Tambah item</h2>
-      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
         {/* Kolom Kiri */}
-        <div className="flex flex-col gap-y-5">
-          <CustomDropdown 
-            label="Jenis Barang (Sewa / Donasi)" 
-            placeholder="Pilih Jenis" 
-            options={['Sewa', 'Donasi']} 
+        <div className="flex flex-col gap-y-5 mb-20">
+          <CustomDropdown
+            label="Jenis Barang (Sewa / Donasi)"
+            placeholder="Pilih Jenis"
+            options={['Sewa', 'Donasi']}
             selectedValue={jenisBarang}
             onSelect={setJenisBarang}
           />
-          <InputField 
-            label="Nama Pakaian" 
-            placeholder="Nama Barang" 
-          />
-          <CustomDropdown 
-            label="Kategori" 
-            placeholder="Pilih Kategori" 
-            options={['Baju', 'Celana', 'Aksesoris']} 
+          <InputField label="Nama Pakaian" placeholder="Nama Barang" value={nama} onChange={(e) => setNama(e.target.value)} />
+          <CustomDropdown
+            label="Kategori"
+            placeholder="Pilih Kategori"
+            options={kategoriList.map((k) => k.name)}
             selectedValue={kategori}
             onSelect={setKategori}
           />
-          <InputField 
-            label="Size" 
-            placeholder="Size" 
+          <CustomDropdown
+            label="Kondisi"
+            placeholder="Pilih Kondisi"
+            options={kondisiOptions.map((o) => o.label)}
+            selectedValue={kondisiOptions.find(o => o.value === kondisi)?.label || ''}
+            onSelect={(label) => {
+              const selected = kondisiOptions.find(o => o.label === label);
+              if (selected) setKondisi(selected.value);
+            }}
           />
-          <InputField 
-            label="Warna" 
-            placeholder="Warna" 
-          />
-          <InputField 
-            label="Jumlah" 
-            placeholder="Jumlah" 
-            type="number" 
-          />
-          
-          {/* Input "Harga Sewa" hanya muncul jika jenis barang adalah "Sewa" */}
+          <InputField label="Size" placeholder="Size" value={size} onChange={(e) => setSize(e.target.value)} />
+          <InputField label="Warna" placeholder="Warna" value={color} onChange={(e) => setColor(e.target.value)} />
+          <InputField label="Jumlah" placeholder="Jumlah" type="number" value={jumlah} onChange={(e) => setJumlah(Number(e.target.value))} />
+
           {jenisBarang === 'Sewa' && (
-            <>
-              <InputField 
-                label="Harga Sewa" 
-                placeholder="Harga Sewa" 
-                type="number" 
-              />
-              <div className='mb-5'></div>
-            </>
-
+            <InputField label="Harga Sewa" placeholder="Harga Sewa" type="number" value={harga} onChange={(e) => setHarga(Number(e.target.value))} />
           )}
-
-
         </div>
 
         {/* Kolom Kanan */}
         <div className="flex flex-col gap-y-5">
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-gray-700">Foto Barang</label>
-            <div className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-              <h3 className="font-semibold text-gray-800">Unggah Foto Barang</h3>
-              <p className="text-xs text-gray-500 mt-1">Seret dan lepas atau klik untuk mengunggah</p>
-              <button className="text-sm font-medium bg-gray-100 border border-gray-300 px-4 py-1.5 rounded-lg mt-4 hover:bg-gray-200 transition">
-                Pilih File
-              </button>
-            </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium text-gray-700">Foto Barang</label>
+          <div
+            className={`flex items-center justify-center w-full border-2 border-dashed border-gray-300 rounded-lg p-4 text-center relative cursor-pointer hover:border-blue-400 transition overflow-hidden ${
+              imagePreview ? 'h-64' : 'h-48'
+            }`}
+            onClick={() => document.getElementById('uploadInput')?.click()}
+          >
+            <input
+              id="uploadInput"
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0] || null;
+                setImages(file);
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onload = (e) => {
+                    setImagePreview(e.target?.result as string);
+                  };
+                  reader.readAsDataURL(file);
+                } else {
+                  setImagePreview(null);
+                }
+              }}
+              className="hidden"
+            />
+
+            {!imagePreview ? (
+              <div className="flex flex-col items-center justify-center text-center">
+                <h3 className="font-semibold text-gray-800">Unggah Foto Barang</h3>
+                <p className="text-xs text-gray-500 mt-1">Seret dan lepas atau klik di sini</p>
+                <div className="text-sm font-medium bg-gray-100 border border-gray-300 px-4 py-1.5 rounded-lg mt-4 hover:bg-gray-200 transition">
+                  Pilih File
+                </div>
+              </div>
+            ) : (
+              <img
+                src={imagePreview}
+                alt="Preview"
+                className="w-full h-full object-contain rounded"
+              />
+            )}
           </div>
+        </div>
+
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium text-gray-700">Deskripsi</label>
             <textarea
+              value={deskripsi}
+              onChange={(e) => setDeskripsi(e.target.value)}
               placeholder="Deskripsi"
-              className="w-full h-fit border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition min-h-24 resize-none outline-0"
+              className="w-full border border-gray-300 rounded-lg p-3 text-sm min-h-24 resize-none outline-0"
             ></textarea>
           </div>
           <div className="flex justify-end gap-4">
-            <button className="px-6 py-2.5 text-sm font-semibold text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition cursor-pointer">
+            <button onClick={() => window.location.reload()} className="px-6 py-2.5 text-sm font-semibold text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition">
               Kosongkan Formulir
             </button>
-            <button className="px-6 py-2.5 text-sm font-semibold text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition cursor-pointer">
+            <button onClick={handleSubmit} className="px-6 py-2.5 text-sm font-semibold text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition">
               Simpan Barang
             </button>
           </div>
         </div>
       </div>
-
-      {/* Tombol Aksi */}
-
     </div>
   );
-}
+};
 
 export default Page;

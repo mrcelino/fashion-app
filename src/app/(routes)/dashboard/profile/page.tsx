@@ -3,98 +3,13 @@
 import { useEffect, useState, FC } from "react";
 import MapPicker from "../../../components/MapPicker/MapPicker";
 import { useAuth } from "../../../context/AuthContext";
+import Toast from "@/app/components/Toast";
+import { ToastType } from "@/app/components/Toast";
+import { InputField } from "@/app/components/InputField";
 
-type InputFieldProps = {
-  label: string;
-  placeholder: string;
-  value: string;
-  onChange: (val: string) => void;
-  type?: string;
-};
-
-type ToastType = "success" | "error";
-
-const InputField: FC<InputFieldProps> = ({ label, placeholder, type = "text", value, onChange }) => (
-  <div className="flex flex-col gap-2">
-    <label className="text-sm font-medium text-gray-700">{label}</label>
-    <input
-      type={type}
-      placeholder={placeholder}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition outline-0"
-    />
-  </div>
-);
-
-const Toast: FC<{ message: string; type: ToastType; onClose: () => void }> = ({ message, type, onClose }) => {
-  useEffect(() => {
-    const timer = setTimeout(onClose, 3000);
-    return () => clearTimeout(timer);
-  }, [onClose]);
-
-  return (
-    <div
-      className={`fixed top-5 right-5 z-50 flex items-center gap-3 max-w-xs rounded-lg px-4 py-3 shadow-lg text-white animate-slideIn`}
-      role="alert"
-      style={{
-        backgroundColor: type === "success" ? "#22c55e" : "#ef4444",
-      }}
-    >
-      {type === "success" ? (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-6 w-6 flex-shrink-0"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={3}
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-        </svg>
-      ) : (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-6 w-6 flex-shrink-0"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={3}
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      )}
-      <span className="flex-grow">{message}</span>
-      <button
-        onClick={onClose}
-        className="text-white hover:text-gray-200 transition"
-        aria-label="Close notification"
-      >
-        ✕
-      </button>
-
-      <style jsx>{`
-        @keyframes slideIn {
-          0% {
-            opacity: 0;
-            transform: translateX(100%);
-          }
-          100% {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-        .animate-slideIn {
-          animation: slideIn 0.3s ease forwards;
-        }
-      `}</style>
-    </div>
-  );
-};
 
 const Page: FC = () => {
   const { user, setUser } = useAuth();
-
   const [nama, setNama] = useState("");
   const [alamat, setAlamat] = useState("");
   const [kota, setKota] = useState("");
@@ -183,10 +98,10 @@ const Page: FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
           <div className="flex flex-col gap-y-5">
-            <InputField label="Nama" placeholder="Nama" value={nama} onChange={setNama} />
-            <InputField label="Alamat Lengkap" placeholder="Alamat" value={alamat} onChange={setAlamat} />
-            <InputField label="Kota / Kabupaten" placeholder="Kota / Kabupaten" value={kota} onChange={setKota} />
-            <InputField label="Kontak" placeholder="Kontak" type="number" value={kontak} onChange={setKontak} />
+            <InputField label="Nama" placeholder="Nama" value={nama} onChange={e => setNama(e.target.value)} />
+            <InputField label="Alamat Lengkap" placeholder="Alamat" value={alamat} onChange={e => setAlamat(e.target.value)} />
+            <InputField label="Kota / Kabupaten" placeholder="Kota / Kabupaten" value={kota} onChange={e => setKota(e.target.value)} />
+            <InputField label="Kontak" placeholder="Kontak" type="number" value={kontak} onChange={e => setKontak(e.target.value)} />
 
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-gray-700">Deskripsi</label>
