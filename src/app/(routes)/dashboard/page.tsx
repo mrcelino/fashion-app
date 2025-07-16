@@ -186,7 +186,7 @@ export default function Page() {
             </Link>
           </div>
 
-          <div className="overflow-hidden rounded-xl border border-gray-200 shadow-sm bg-white">
+          <div className="overflow-hidden rounded-xl border border-gray-200 shadow-sm bg-white mb-5">
             <table className="w-full table-auto text-left">
               <thead className="border-b border-gray-200 bg-gray-50">
                 <tr>

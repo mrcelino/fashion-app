@@ -394,9 +394,9 @@ export default function Page() {
           <div className="flex">
             <button
               onClick={() => setActiveTab('Donasi')}
-              className={`flex-1 px-6 py-3 font-semibold text-base rounded-xl transition-all duration-300 ${
+              className={`flex-1 px-6 py-3 font-semibold text-base rounded-xl transition-all duration-300 cursor-pointer ${
                 activeTab === 'Donasi' 
-                  ? 'bg-[#3D74B6] text-white shadow-lg shadow-blue-500/25' 
+                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25' 
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
@@ -404,9 +404,9 @@ export default function Page() {
             </button>
             <button
               onClick={() => setActiveTab('Sewa')}
-              className={`flex-1 px-6 py-3 font-semibold text-base rounded-xl transition-all duration-300 ${
+              className={`flex-1 px-6 py-3 font-semibold text-base rounded-xl transition-all duration-300 cursor-pointer ${
                 activeTab === 'Sewa' 
-                  ? 'bg-[#3D74B6] to-blue-600 text-white shadow-lg shadow-blue-500/25' 
+                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25' 
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
