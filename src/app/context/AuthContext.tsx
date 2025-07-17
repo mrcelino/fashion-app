@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         setToken(storedToken);
 
-        const res = await fetch("/api/users/me", {
+        let res = await fetch("/api/users/me", {
           method: "GET",
           headers: {
             Authorization: `Bearer ${storedToken}`,
@@ -62,14 +62,36 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           },
         });
 
-        if (!res.ok) throw new Error("Gagal mengambil data user");
+        if (res.status === 401) {
+          // Token expired, refresh
+          const refreshRes = await fetch("/api/auth/refresh", {
+            method: "POST",
+          });
+
+          if (!refreshRes.ok) {
+            throw new Error("Token refresh gagal");
+          }
+
+          const refreshData = await refreshRes.json();
+          const newToken = refreshData.data.access_token;
+
+          localStorage.setItem("access_token", newToken);
+          setToken(newToken);
+
+          // Retry ambil user info
+          res = await fetch("/api/users/me", {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${newToken}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (!res.ok) throw new Error("Gagal ambil user setelah refresh");
+        }
 
         const result = await res.json();
-        if (result && result.data) {
-          setUser(result.data);
-        } else {
-          throw new Error("User tidak ditemukan");
-        }
+        setUser(result.data);
       } catch (error) {
         console.error("Auth init error:", error);
         localStorage.removeItem("access_token");
