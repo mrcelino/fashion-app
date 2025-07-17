@@ -85,6 +85,9 @@ const Page = () => {
       const result = await response.json();
       if (response.ok && result.success) {
         setToast({ message: 'Item berhasil disimpan!', type: 'success' });
+        setTimeout(() => {
+          window.location.href = '/dashboard/listings';
+        }, 2000);
       } else {
         setToast({ message: result.message || 'Gagal menyimpan item.', type: 'error' });
       }
@@ -98,6 +101,15 @@ const Page = () => {
   { label: 'Sangat Baik', value: 'excellent' },
   { label: 'Baik', value: 'good' },
   { label: 'Cukup', value: 'fair' },
+  ];
+
+  const sizeOptions = [
+    { label: 'XS', value: 'XS' },
+    { label: 'S', value: 'S' },
+    { label: 'M', value: 'M' },
+    { label: 'L', value: 'L' },
+    { label: 'XL', value: 'XL' },
+    { label: 'XXL', value: 'XXL' },
   ];
 
   return (
@@ -121,7 +133,7 @@ const Page = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
         {/* Kolom Kiri */}
-        <div className="flex flex-col gap-y-5 mb-20">
+        <div className="flex flex-col gap-y-5 mb-10">
           <CustomDropdown
             label="Jenis Barang (Sewa / Donasi)"
             placeholder="Pilih Jenis"
@@ -137,6 +149,18 @@ const Page = () => {
             selectedValue={kategori}
             onSelect={setKategori}
           />
+          {jenisBarang === 'Sewa' && (
+            <InputField 
+              label="Harga Sewa / Hari"
+              placeholder="Harga Sewa"
+              type="text"
+              value={harga === 0 ? '' : harga.toLocaleString('id-ID')}
+              onChange={e => {
+                const raw = e.target.value.replace(/\D/g, '');
+                setHarga(raw ? parseInt(raw, 10) : 0);
+              }}
+            />
+          )}
           <CustomDropdown
             label="Kondisi"
             placeholder="Pilih Kondisi"
@@ -147,13 +171,9 @@ const Page = () => {
               if (selected) setKondisi(selected.value);
             }}
           />
-          <InputField label="Size" placeholder="Size" value={size} onChange={(e) => setSize(e.target.value)} />
-          <InputField label="Warna" placeholder="Warna" value={color} onChange={(e) => setColor(e.target.value)} />
+          <CustomDropdown label="Size" placeholder="Pilih Size" options={sizeOptions.map((o) => ({ label: o.label, value: o.value }))} selectedValue={size} onSelect={setSize} />
+          <InputField label="Warna" placeholder="Warna" value={color} onChange={(e) => { const value = e.target.value; setColor(value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()); }} />
           <InputField label="Jumlah" placeholder="Jumlah" type="number" value={jumlah} onChange={(e) => setJumlah(Number(e.target.value))} />
-
-          {jenisBarang === 'Sewa' && (
-            <InputField label="Harga Sewa" placeholder="Harga Sewa" type="number" value={harga} onChange={(e) => setHarga(Number(e.target.value))} />
-          )}
         </div>
 
         {/* Kolom Kanan */}
