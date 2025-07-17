@@ -20,6 +20,9 @@ type RequestData = {
   created_at: string;
   updated_at: string;
   item_name: string;
+  item_price?: number;
+  item_images?: string[];
+  category_name: string;
   user_name: string;
   user_full_name: string;
   user_phone: string;
@@ -38,6 +41,8 @@ const statusColor = (status: string) => {
       return "bg-green-100 text-green-800";
     case "rejected":
       return "bg-red-100 text-red-800";
+    case "completed":
+      return "bg-blue-100 text-blue-800";
     default:
       return "bg-gray-100 text-gray-800";
   }
@@ -49,8 +54,7 @@ const TabContent = ({ tabType, defaultSearch = "" }: { tabType: "Donasi" | "Sewa
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [selectedType, setSelectedType] = useState<"donation" | "rental" | null>(null);
+  const [selectedRequestData, setSelectedRequestData] = useState<RequestData | null>(null);
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -198,19 +202,13 @@ const TabContent = ({ tabType, defaultSearch = "" }: { tabType: "Donasi" | "Sewa
                   <td className="p-4">
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                        <svg
-                          className="w-5 h-5 text-gray-600"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-                          />
-                        </svg>
+                        <Image
+                          src={item.item_images?.[0] || "/placeholder.png"}
+                          alt={item.item_name}
+                          width={40}
+                          height={40}
+                          className="object-cover rounded-lg"
+                        />
                       </div>
                       <span className="font-medium text-gray-900">
                         {item.item_name}
@@ -274,12 +272,12 @@ const TabContent = ({ tabType, defaultSearch = "" }: { tabType: "Donasi" | "Sewa
                   {/* Aksi */}
                   <td className="p-4">
                     <button
-                        onClick={() => {
+                      onClick={() => {
                         setModalOpen(true);
-                        setSelectedId(item.id);
-                        setSelectedType(item.type);
+                        setSelectedRequestData(item);
                       }} 
-                    className="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                      className="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                    >
                       <svg
                         className="w-4 h-4 mr-1.5"
                         fill="none"
@@ -311,9 +309,11 @@ const TabContent = ({ tabType, defaultSearch = "" }: { tabType: "Donasi" | "Sewa
 
       <DetailModal
         open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        requestId={selectedId}
-        type={selectedType}
+        onClose={() => {
+          setModalOpen(false);
+          setSelectedRequestData(null);
+        }}
+        requestData={selectedRequestData}
         onSuccess={handleSuccess}
       />
     </div>

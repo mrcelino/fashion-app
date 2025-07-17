@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { FaWhatsapp } from "react-icons/fa";
-import Spinner from "./Spinner";
 
 export function formatDate(dateStr?: string) {
   if (!dateStr) return "-";
@@ -16,72 +15,63 @@ export function formatDate(dateStr?: string) {
 export default function DetailModal({
   open,
   onClose,
-  requestId,
-  type,
+  requestData,
   onSuccess,
 }: {
   open: boolean;
   onClose: () => void;
-  requestId: string | null;
-  type: "donation" | "rental" | null;
+  requestData: any | null;
   onSuccess?: () => void;
 }) {
-  const [loading, setLoading] = useState(false);
-  const [detail, setDetail] = useState<any>(null);
   const [actionLoading, setActionLoading] = useState(false);
   const defaultImage = "/shirt.webp";
 
   function formatPhoneNumber(phone: string) {
-  if (!phone) return "";
-  const cleaned = phone.replace(/\D/g, "");
-  // If starts with 0, replace with 62
-  if (cleaned.startsWith("0")) {
-    return "62" + cleaned.slice(1);
-  }
-  return cleaned;
+    if (!phone) return "";
+    const cleaned = phone.replace(/\D/g, "");
+    // If starts with 0, replace with 62
+    if (cleaned.startsWith("0")) {
+      return "62" + cleaned.slice(1);
+    }
+    return cleaned;
   }
 
   // Add handleStatusUpdate function
   const handleStatusUpdate = async (newStatus: string, rejectionReason?: string) => {
-    if (!requestId) return;
+    if (!requestData?.id) return;
     
     setActionLoading(true);
     try {
       const token = localStorage.getItem("access_token");
-    const body: { status: string; rejection_reason?: string } = {
-      status: newStatus,
-    };
-
-    if (newStatus === "rejected") {
-      body.rejection_reason = " ";
-    }
-
-  const response = await fetch(`/api/requests/${requestId}`, {
-    method: "PUT",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
-
-    const data = await response.json();
-    
-    if (data.success) {
-      // Update local state
-      setDetail((prev: any) => ({
-        ...prev,
+      const body: { status: string; rejection_reason?: string } = {
         status: newStatus,
-      }));
-      
-      // Notify parent component
-      if (onSuccess) onSuccess();
+      };
 
-      // Optional: Close modal on success
-      // onClose();
-    } else {
-      throw new Error(data.message || "Failed to update status");
-    }
+      if (newStatus === "rejected") {
+        body.rejection_reason = " ";
+      }
+
+      const response = await fetch(`/api/requests/${requestData.id}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+
+      const data = await response.json();
+      console.log("Update response:", data);
+      
+      if (data.success) {
+        // Notify parent component to refresh data
+        if (onSuccess) onSuccess();
+        
+        // Close modal on success
+        onClose();
+      } else {
+        throw new Error(data.message || "Failed to update status");
+      }
     } catch (error) {
       console.error("Error updating status:", error);
       // Might want to show an error toast/alert here
@@ -90,61 +80,30 @@ export default function DetailModal({
     }
   };
 
-  useEffect(() => {
-    const fetchDetail = async () => {
-      if (!open || !requestId) return;
-
-      setLoading(true);
-      setDetail(null);
-
-      try {
-        const token = localStorage.getItem("access_token");
-        const response = await fetch(`/api/requests/${requestId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        const res = await response.json();
-
-        if (res.success && res.data) {
-          setDetail(res.data);
-        } else {
-          setDetail(null);
-        }
-      } catch (error) {
-        setDetail(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDetail();
-  }, [open, requestId]);
-
-
   if (!open) return null;
 
-  // Fallback/mock data
-  const item = detail?.item || {};
-  const user = detail?.user || {};
+  // Use requestData directly instead of fetching
+  const detail = requestData;
+  const type = detail?.type;
   const status = detail?.status || "";
   const isDonation = type === "donation";
   const isRental = type === "rental";
 
-  // Fallbacks
-  const size = item.size || "-";
-  const images = item.images && item.images.length > 0 ? item.images : [defaultImage];
-  const category = item.category || "-";
-  const price = item.price ? `Rp${item.price.toLocaleString("id-ID")}` : "-";
+  // Extract data from the complete request object
+  const itemName = detail?.item_name || "-";
+  const itemImages = detail?.item_images && detail.item_images.length > 0 ? detail.item_images : [defaultImage];
+  const categoryName = detail?.category_name || "-";
+  const itemPrice = detail?.item_price ? `Rp${detail.item_price.toLocaleString("id-ID")}` : "-";
+  const size = detail?.item_size || "-";
   const tanggal = detail?.created_at ? formatDate(detail.created_at) : "-";
   const tujuan = detail?.reason || "-";
   const pickupDate = detail?.pickup_date ? formatDate(detail.pickup_date) : "-";
   const updatedAt = detail?.updated_at ? formatDate(detail.updated_at) : "-";
   const returnDate = detail?.return_date ? formatDate(detail.return_date) : "-";
   const jumlah = detail?.quantity || "-";
-  const whatsapp = user.phone ? `https://wa.me/${formatPhoneNumber(user.phone)}` : "#";
+  const userFullName = detail?.user_full_name || "-";
+  const userPhone = detail?.user_phone || detail?.contact_info || "";
+  const whatsapp = userPhone ? `https://wa.me/${formatPhoneNumber(userPhone)}` : "#";
 
   // Modal content by type & status
   return (
@@ -161,10 +120,7 @@ export default function DetailModal({
 
         {/* KONTEN UTAMA */}
         <div className="py-4">
-          {loading ? (
-            // --- LOADING STATE: spinner untuk feedback visual yang lebih baik ---
-            <Spinner />
-          ) : !detail ? (
+          {!detail ? (
             // --- ERROR STATE: Gunakan alert agar lebih menonjol ---
             <div role="alert" className="alert alert-error">
               <svg
@@ -189,31 +145,31 @@ export default function DetailModal({
               <div className="flex flex-col sm:flex-row gap-5">
                 <figure className="w-full sm:w-32 h-32 flex-shrink-0">
                   <Image
-                    src={images[0]}
-                    alt={item.name || "Item"}
+                    src={itemImages[0]}
+                    alt={itemName}
                     width={128}
                     height={128}
                     className="object-cover w-full h-full rounded-box bg-base-200"
                   />
                 </figure>
                 <div className="flex-1 space-y-2">
-                  <h2 className="card-title text-2xl">{item.name || "-"}</h2>
+                  <h2 className="card-title text-2xl">{itemName}</h2>
                   <div className="flex items-center gap-2 flex-wrap">
                     {/* Badge untuk highlight info kunci */}
-                    <div className="badge badge-outline">Size: {size}</div>
-                    {isDonation && (
-                      <div className="badge badge-primary badge-outline">
-                        {category}
-                      </div>
-                    )}
+                    <div className="badge badge-primary badge-outline">
+                      Size : {size}
+                    </div>
+                    <div className="badge badge-primary badge-outline">
+                      {categoryName}
+                    </div>
                     {isRental && (
-                      <div className="badge badge-outline">Harga: {price}</div>
+                      <div className="badge badge-outline">Harga: {itemPrice}</div>
                     )}
                   </div>
                   <p className="text-sm text-base-content/70 pt-2">
                     Diajukan oleh:{" "}
                     <span className="font-semibold text-base-content">
-                      {user.full_name || "-"}
+                      {userFullName}
                     </span>
                   </p>
                 </div>
@@ -260,8 +216,6 @@ export default function DetailModal({
               </div>
 
               {/* Bagian 3: Status & Informasi Tambahan */}
-              {/* Alert untuk status profesional & jelas */}
-              {/* {isDonation && status === "approved" && <div role="alert" className="alert alert-info text-sm"><span>Menunggu donasi diterima.</span></div>} */}
               {isDonation && status === "completed" && (
                 <div role="alert" className="alert alert-success text-sm">
                   <span>Donasi telah diterima pada {updatedAt}</span>
@@ -276,10 +230,8 @@ export default function DetailModal({
           )}
         </div>
 
-        {/* ACTIONS FOOTER:
-        Semua tombol aksi ditaruh di sini agar konsisten dan mudah dijangkau.
-      */}
-        {!loading && detail && (
+        {/* ACTIONS FOOTER */}
+        {detail && (
           <div className="modal-action mt-6 items-center">
             {/* Tombol WhatsApp sebagai Call to Action */}
             <a

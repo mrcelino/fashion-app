@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation"; // Tambahkan jika ingin pakai router.push
 import Link from "next/link";
 
 export default function Page() {
@@ -167,7 +166,7 @@ export default function Page() {
               </p>
             </div>
             <h3 className="text-3xl font-bold text-gray-900 mt-auto">
-              {stats ? stats.total_donations : "-"}
+              {stats ? stats.completed_requests : "-"}
             </h3>
           </div>
         </div>
@@ -235,7 +234,7 @@ export default function Page() {
                             </svg>
                           </div>
                           <span className="font-medium text-gray-900">
-                            {getItemName(req.item_id)}
+                            {req.item_name}
                           </span>
                         </div>
                       </td>
