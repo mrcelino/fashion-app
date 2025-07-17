@@ -39,7 +39,6 @@ const TabContent = ({ tabType }: { tabType: 'Donasi' | 'Sewa' }) => {
       setIsLoading(true);
       setError(null);
       try {
-        const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
         const params = new URLSearchParams();
         
         const apiType = tabType === 'Donasi' ? 'donation' : 'rental';

@@ -16,6 +16,7 @@ type CustomDropdownProps = {
   selectedValue: string;
   onSelect: (value: string) => void;
   className?: string;
+  disabled?: boolean;
 };
 
 export const CustomDropdown: React.FC<CustomDropdownProps> = ({
@@ -25,6 +26,7 @@ export const CustomDropdown: React.FC<CustomDropdownProps> = ({
   selectedValue,
   onSelect,
   className = '',
+  disabled = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -53,8 +55,11 @@ export const CustomDropdown: React.FC<CustomDropdownProps> = ({
       {label && <label className="text-sm font-medium text-gray-700">{label}</label>}
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full border border-gray-300 rounded-lg p-3 text-sm text-left flex justify-between items-center"
+        onClick={disabled ? undefined : () => setIsOpen(!isOpen)}
+        className={`w-full border border-gray-300 rounded-lg p-3 text-sm text-left flex justify-between items-center ${disabled ? 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-70' : ''}`}
+        disabled={disabled}
+        tabIndex={disabled ? -1 : 0}
+        aria-disabled={disabled}
       >
         <span className={selectedValue ? 'text-gray-900' : 'text-gray-400'}>
           {selectedLabel || placeholder}

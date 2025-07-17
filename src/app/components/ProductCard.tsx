@@ -1,5 +1,7 @@
 import React, { useState} from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+
 export type Product = {
   id: string;
   name: string;
@@ -23,6 +25,55 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const [isHovered, setIsHovered] = useState(false);
   
   const imageUrl = product.images && product.images.length > 0 ? product.images[0] : "/shirt.webp";
+
+  // Mapping warna Indonesia ke CSS color
+  const colorMap: Record<string, string> = {
+    'Merah': 'red',
+    'Biru': 'blue',
+    'Hijau': 'green',
+    'Kuning': 'yellow',
+    'Hitam': 'black',
+    'Putih': 'white',
+    'Abu-abu': 'gray',
+    'Coklat': 'brown',
+    'Ungu': 'purple',
+    'Pink': 'pink',
+    'Oranye': 'orange',
+    'Emas': 'gold',
+    'Perak': 'silver',
+    'Biru Muda': '#ADD8E6',
+    'Biru Tua': '#00008B',
+    'Hijau Muda': '#90EE90',
+    'Hijau Tua': '#006400',
+    'Krem': '#F5F5DC',
+    'Marun': '#800000',
+    'Navy': 'navy',
+    'Toska': '#40E0D0',
+    'Lavender': '#E6E6FA',
+    'Cyan': 'cyan',
+    'Magenta': 'magenta',
+    'Silver': 'silver',
+    'Beige': 'beige',
+    'Coral': 'coral',
+    'Lainnya': '#ccc',
+  };
+
+  const router = useRouter();
+
+  const handleActivityClick = () => {
+    const tab = product.type === 'rental' ? 'Sewa' : 'Donasi';
+    
+    const searchParams = new URLSearchParams({
+      tab: tab,
+      search: product.name
+    });
+
+    router.push(`/dashboard/activity?${searchParams.toString()}`);
+  };
+
+  const handleEditClick = () => {
+    router.push(`/dashboard/edit-items/${product.id}`);
+  };
 
   const getStatusConfig = (status: string) => {
     switch (status) {
@@ -130,7 +181,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             <div className="flex items-center gap-1">
               <div 
                 className="w-3 h-3 rounded-full border border-gray-300"
-                style={{ backgroundColor: product.color }}
+                style={{ backgroundColor: colorMap[product.color] || product.color }}
               ></div>
               <span className="capitalize">{product.color}</span>
             </div>
@@ -163,10 +214,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
         {/* Action Buttons */}
         <div className="flex gap-2 pt-3 border-t border-gray-100">
-          <button className="flex-1 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 py-2 px-3 rounded-lg transition-all duration-200 font-medium cursor-pointer">
+          <button 
+            onClick={handleActivityClick}
+            className="flex-1 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 py-2 px-3 rounded-lg transition-all duration-200 font-medium cursor-pointer"
+          >
             📊 Aktivitas
           </button>
-          <button className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm py-2 px-3 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg cursor-pointer">
+          <button 
+            onClick={handleEditClick}
+            className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm py-2 px-3 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg cursor-pointer"
+          >
             ⚙️ Kelola
           </button>
         </div>
