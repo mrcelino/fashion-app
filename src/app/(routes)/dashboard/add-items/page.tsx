@@ -22,8 +22,10 @@ const Page = () => {
   const [jumlah, setJumlah] = useState<number>(1);
   const [harga, setHarga] = useState<number>(0);
   const [deskripsi, setDeskripsi] = useState('');
-  const [images, setImages] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [image1, setImage1] = useState<File | null>(null);
+  const [image2, setImage2] = useState<File | null>(null);
+  const [imagePreview1, setImagePreview1] = useState<string>('');
+  const [imagePreview2, setImagePreview2] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState('');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
@@ -43,6 +45,23 @@ const Page = () => {
     fetchCategories();
   }, []);
 
+  // Image handlers
+  const handleImage1Change = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImage1(file);
+      setImagePreview1(URL.createObjectURL(file));
+    }
+  };
+
+  const handleImage2Change = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImage2(file);
+      setImagePreview2(URL.createObjectURL(file));
+    }
+  };
+
   // POST handler
   const handleSubmit = async () => {
   setErrorMessage(''); // reset error
@@ -55,7 +74,7 @@ const Page = () => {
   if (!color.trim()) return setErrorMessage('Warna wajib diisi.');
   if (!jumlah || jumlah <= 0) return setErrorMessage('Jumlah harus lebih dari 0.');
   if (jenisBarang === 'Sewa' && (!harga || harga <= 0)) return setErrorMessage('Harga sewa wajib diisi dan lebih dari 0.');
-  if (!images) return setErrorMessage('Gambar barang wajib diunggah.');
+  if (!image1) return setErrorMessage('Gambar 1 wajib diunggah.');
   if (!deskripsi.trim()) return setErrorMessage('Deskripsi wajib diisi.');
     const formData = new FormData();
     const token = localStorage.getItem('access_token');
@@ -69,7 +88,8 @@ const Page = () => {
     formData.append('size', size);
     formData.append('color', color);
     formData.append('total_quantity', jumlah.toString());
-    if (images) formData.append('images', images);
+    if (image1) formData.append('images', image1);
+    if (image2) formData.append('images', image2);
     formData.append('description', deskripsi);
     if (jenisBarang === 'Sewa') formData.append('price', harga.toString());
 
@@ -179,50 +199,53 @@ const Page = () => {
         {/* Kolom Kanan */}
         <div className="flex flex-col gap-y-5">
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-gray-700">Foto Barang</label>
-          <div
-            className={`flex items-center justify-center w-full border-2 border-dashed border-gray-300 rounded-lg p-4 text-center relative cursor-pointer hover:border-blue-400 transition overflow-hidden ${
-              imagePreview ? 'h-64' : 'h-48'
-            }`}
-            onClick={() => document.getElementById('uploadInput')?.click()}
-          >
-            <input
-              id="uploadInput"
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files?.[0] || null;
-                setImages(file);
-                if (file) {
-                  const reader = new FileReader();
-                  reader.onload = (e) => {
-                    setImagePreview(e.target?.result as string);
-                  };
-                  reader.readAsDataURL(file);
-                } else {
-                  setImagePreview(null);
-                }
-              }}
-              className="hidden"
-            />
-
-            {!imagePreview ? (
-              <div className="flex flex-col items-center justify-center text-center">
-                <h3 className="font-semibold text-gray-800">Unggah Foto Barang</h3>
-                <p className="text-xs text-gray-500 mt-1">Seret dan lepas atau klik di sini</p>
-                <div className="text-sm font-medium bg-gray-100 border border-gray-300 px-4 py-1.5 rounded-lg mt-4 hover:bg-gray-200 transition">
-                  Pilih File
+            <label className="text-sm font-medium text-gray-700">Foto Barang</label>
+            <div className="grid grid-cols-2 gap-4">
+              {/* Image 1 Upload */}
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-medium text-gray-600">Gambar 1 *</label>
+                <div
+                  className="flex items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-lg p-4 text-center relative cursor-pointer hover:border-blue-400 transition overflow-hidden"
+                  onClick={() => document.getElementById('fileInput1')?.click()}
+                >
+                  <input type="file" accept="image/*" onChange={handleImage1Change} className="hidden" id="fileInput1" />
+                  {imagePreview1 ? (
+                    <img src={imagePreview1} alt="Preview 1" className="w-full h-full object-cover rounded" />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center text-center">
+                      <h3 className="font-semibold text-gray-800 text-sm">Upload Gambar 1</h3>
+                      <p className="text-xs text-gray-500 mt-1">Klik untuk pilih</p>
+                      <div className="text-xs font-medium bg-gray-100 border border-gray-300 px-3 py-1 rounded-lg mt-2 hover:bg-gray-200 transition">
+                        Pilih File
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
-            ) : (
-              <img
-                src={imagePreview}
-                alt="Preview"
-                className="w-full h-full object-contain rounded"
-              />
-            )}
+
+              {/* Image 2 Upload */}
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-medium text-gray-600">Gambar 2</label>
+                <div
+                  className="flex items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-lg p-4 text-center relative cursor-pointer hover:border-blue-400 transition overflow-hidden"
+                  onClick={() => document.getElementById('fileInput2')?.click()}
+                >
+                  <input type="file" accept="image/*" onChange={handleImage2Change} className="hidden" id="fileInput2" />
+                  {imagePreview2 ? (
+                    <img src={imagePreview2} alt="Preview 2" className="w-full h-full object-cover rounded" />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center text-center">
+                      <h3 className="font-semibold text-gray-800 text-sm">Upload Gambar 2</h3>
+                      <p className="text-xs text-gray-500 mt-1">Klik untuk pilih</p>
+                      <div className="text-xs font-medium bg-gray-100 border border-gray-300 px-3 py-1 rounded-lg mt-2 hover:bg-gray-200 transition">
+                        Pilih File
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
 
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium text-gray-700">Deskripsi</label>
