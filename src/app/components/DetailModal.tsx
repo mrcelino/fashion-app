@@ -24,6 +24,7 @@ export default function DetailModal({
   onSuccess?: () => void;
 }) {
   const [actionLoading, setActionLoading] = useState(false);
+  const [showStockModal, setShowStockModal] = useState(false);
   const defaultImage = "/shirt.webp";
 
   function formatPhoneNumber(phone: string) {
@@ -70,7 +71,14 @@ export default function DetailModal({
         // Close modal on success
         onClose();
       } else {
-        throw new Error(data.message || "Failed to update status");
+        // Check if it's the specific stock error
+        if (data.error && 
+            data.error.type === "DATABASE_ERROR" && 
+            data.error.message === "Failed to update item stock (decrement)") {
+          setShowStockModal(true);
+        } else {
+          throw new Error(data.message || "Failed to update status");
+        }
       }
     } catch (error) {
       console.error("Error updating status:", error);
@@ -333,6 +341,29 @@ export default function DetailModal({
       <form method="dialog" className="modal-backdrop">
         <button onClick={onClose}>close</button>
       </form>
+
+      {/* Stock Error Modal */}
+      {showStockModal && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg text-error text-center">Stok Habis!</h3>
+            <p className="pt-4 text-center">
+              Maaf, item "{itemName}" saat ini sudah habis.
+            </p>
+            <p className="text-center text-base">
+              Permintaan tidak dapat diproses saat ini.
+            </p>
+            <div className="modal-action">
+              <button 
+                className="btn btn-primary" 
+                onClick={() => setShowStockModal(false)}
+              >
+                Mengerti
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </dialog>
   );
 }

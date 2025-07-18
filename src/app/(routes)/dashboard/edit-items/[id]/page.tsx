@@ -33,6 +33,7 @@ const Page = () => {
   const [existingImages, setExistingImages] = useState<string[]>([]);
   const [imagePreview, setImagePreview] = useState<string[]>([]);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const kondisiOptions = [
     { label: 'Sangat Baik', value: 'excellent' },
@@ -171,7 +172,6 @@ const Page = () => {
   };
 
   const handleDelete = async () => {
-    if (!confirm('Apakah Anda yakin ingin menghapus item ini?')) return;
     try {
       const token = localStorage.getItem('access_token');
       const response = await fetch(`/api/items/${id}`, {
@@ -179,6 +179,7 @@ const Page = () => {
         headers: { 'Authorization': token ? `Bearer ${token}` : '' },
       });
       if (response.ok) {
+        setShowDeleteModal(false);
         showToast('Item berhasil dihapus!', 'success');
         setTimeout(() => router.push('/dashboard/listings'), 1500);
       }
@@ -215,7 +216,7 @@ const Page = () => {
 
       <div className='flex flex-row justify-between'>
         <h2 className="text-2xl font-bold text-gray-800">Kelola Item</h2>
-        <button onClick={handleDelete} className='btn rounded-2xl bg-red-500 text-white cursor-pointer hover:scale-105 transition duration-300 px-4 py-2'>
+        <button onClick={() => setShowDeleteModal(true)} className='btn rounded-2xl bg-red-500 text-white cursor-pointer hover:scale-105 transition duration-300 px-4 py-2'>
           Hapus Item
         </button>
       </div>
@@ -247,7 +248,7 @@ const Page = () => {
           />
           <CustomDropdown label="Size" placeholder="Pilih Size" options={sizeOptions.map((o) => ({ label: o.label, value: o.value }))} selectedValue={size} onSelect={setSize} />
           <InputField label="Warna" placeholder="Warna" value={color} onChange={(e) => { const value = e.target.value; setColor(value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()); }} />
-          <InputField label="Jumlah" placeholder="Jumlah" type="number" value={jumlah} onChange={(e) => setJumlah(Number(e.target.value))} />
+          <InputField label="Jumlah tersedia" placeholder="Jumlah tersedia" type="number" value={jumlah} onChange={(e) => setJumlah(Number(e.target.value))} />
 
 
         </div>
@@ -299,6 +300,31 @@ const Page = () => {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg text-center">Konfirmasi Hapus Item</h3>
+            <p className="pt-4 text-center">Apakah Anda yakin ingin menghapus item ini?</p>
+            <p className='text-center'>Tindakan ini tidak dapat dibatalkan.</p>
+            <div className="modal-action">
+              <button 
+                className="btn btn-ghost" 
+                onClick={() => setShowDeleteModal(false)}
+              >
+                Batal
+              </button>
+              <button 
+                className="btn btn-error" 
+                onClick={handleDelete}
+              >
+                Hapus
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
