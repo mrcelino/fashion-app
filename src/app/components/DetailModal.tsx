@@ -62,7 +62,6 @@ export default function DetailModal({
       });
 
       const data = await response.json();
-      console.log("Update response:", data);
       
       if (data.success) {
         // Notify parent component to refresh data
@@ -161,7 +160,7 @@ export default function DetailModal({
                   />
                 </figure>
                 <div className="flex-1 space-y-2">
-                  <h2 className="card-title text-2xl">{itemName}</h2>
+                  <h2 className="card-title text-lg md:text-2xl">{itemName}</h2>
                   <div className="flex items-center gap-2 flex-wrap">
                     {/* Badge untuk highlight info kunci */}
                     <div className="badge badge-primary badge-outline">
@@ -240,7 +239,7 @@ export default function DetailModal({
 
         {/* ACTIONS FOOTER */}
         {detail && (
-          <div className="modal-action mt-6 items-center">
+          <div className="flex flex-col md:flex-row gap-2 md:modal-action md:items-center">
             {/* Tombol WhatsApp sebagai Call to Action */}
             <a
               href={whatsapp}
@@ -254,7 +253,7 @@ export default function DetailModal({
 
             {/* DONASI ACTIONS */}
             {isDonation && status === "pending" && (
-              <div className="space-x-2">
+              <div className="space-x-2 mt-4 md:mt-0 flex justify-end">
                 <button
                   className="btn btn-ghost"
                   onClick={() => handleStatusUpdate("rejected", "")}
@@ -295,7 +294,7 @@ export default function DetailModal({
 
             {/* SEWA ACTIONS */}
             {isRental && status === "pending" && (
-              <div className="space-x-2">
+              <div className="space-x-2 mt-4 md:mt-0 flex justify-end">
                 <button
                   className="btn btn-ghost"
                   onClick={() => handleStatusUpdate("rejected", "")}
