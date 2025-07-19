@@ -83,7 +83,6 @@ const Page = () => {
           headers: { 'Authorization': token ? `Bearer ${token}` : '' },
         });
         const result = await response.json();
-        console.log('Fetched item data:', result);
         
         if (result.success && result.data) {
           const item = result.data;
@@ -227,7 +226,7 @@ const Page = () => {
       )}
 
       <div className='flex flex-row justify-between'>
-        <h2 className="text-2xl font-bold text-gray-800">Kelola Item</h2>
+        <h2 className="text-xl md:text-2xl font-bold text-gray-800">Kelola Item</h2>
         <button onClick={() => setShowDeleteModal(true)} className='btn rounded-2xl bg-red-500 text-white cursor-pointer hover:scale-105 transition duration-300 px-4 py-2'>
           Hapus Item
         </button>

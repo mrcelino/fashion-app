@@ -368,7 +368,7 @@ const TabContent = ({ tabType }: { tabType: 'Donasi' | 'Sewa' }) => {
       )}
 
       {/* Products Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
         {renderContent()}
       </div>
     </div>
@@ -383,13 +383,13 @@ export default function Page() {
     <div className="min-h-screen">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-4">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Inventaris</h1>
-          <p className="text-gray-600">Kelola semua produk donasi dan rental Anda</p>
+        <div className="flex flex-col gap-1 md:gap-2 mb-4">
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Inventaris</h1>
+          <p className="text-base md:text-lg text-gray-600">Kelola semua produk donasi dan rental Anda</p>
         </div>
 
         {/* Tab Navigation */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-2 mb-4 w-1/2 mx-auto">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-2 mb-4 w-full md:w-1/2 mx-auto">
           <div className="flex">
             <button
               onClick={() => setActiveTab('Donasi')}

@@ -93,8 +93,10 @@ const Page: FC = () => {
     <>
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       <div className="flex flex-col justify-center gap-4">
-        <h2 className="text-2xl font-bold text-gray-800">Pengaturan</h2>
-        <h2 className="text-lg font-semibold text-gray-800">🏬 Profil Bisnis / Komunitas / Pribadi</h2>
+        <div className="flex flex-col gap-2">
+          <h2 className="text-xl md:text-2xl font-bold text-gray-800">Pengaturan</h2>
+          <h2 className="text-base md:text-lg font-semibold text-gray-800">🏬 Profil Bisnis / Komunitas / Pribadi</h2>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
           <div className="flex flex-col gap-y-5">

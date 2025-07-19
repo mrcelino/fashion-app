@@ -33,7 +33,6 @@ export default function LoginPage() {
       });
 
       const data = await response.json();
-      console.log("Response verify:", response.status, data);
 
       if (!response.ok) throw new Error(data.error || "Token verification failed");
       localStorage.setItem("access_token", data.data.access_token);

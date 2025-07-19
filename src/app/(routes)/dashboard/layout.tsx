@@ -29,7 +29,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen">
       <Navbar />
       <Sidebar />
-      <main className="pt-20 md:pt-24 min-h-screen ml-80 px-4 md:px-8">
+      <main className="pt-20 md:pt-24 min-h-screen lg:ml-80 px-4 md:px-8">
         {children}
       </main>
     </div>

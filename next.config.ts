@@ -16,7 +16,7 @@ const nextConfig: NextConfig = {
       {
         source: "/api/:path*",
         destination: isProd
-          ? ""
+          ? "https://satu-lemari-466001.et.r.appspot.com/api/v1/:path*"
           : "http://localhost:8080/api/v1/:path*",
       },
     ];

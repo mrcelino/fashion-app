@@ -48,13 +48,20 @@ const statusColor = (status: string) => {
   }
 };
 
-const TabContent = ({ tabType, defaultSearch = "" }: { tabType: "Donasi" | "Sewa"; defaultSearch?: string }) => {
+const TabContent = ({ tabType, defaultSearch = "", searchFromUrl = "" }: { tabType: "Donasi" | "Sewa"; defaultSearch?: string; searchFromUrl?: string }) => {
   const [filters, setFilters] = useState<FilterState>({ search: defaultSearch });
   const [data, setData] = useState<RequestData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedRequestData, setSelectedRequestData] = useState<RequestData | null>(null);
+
+  // Update search filter when URL search parameter changes
+  useEffect(() => {
+    if (searchFromUrl !== filters.search) {
+      setFilters(prev => ({ ...prev, search: searchFromUrl }));
+    }
+  }, [searchFromUrl]);
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -322,24 +329,29 @@ const TabContent = ({ tabType, defaultSearch = "" }: { tabType: "Donasi" | "Sewa
 
 export default function Page() {
   const searchParams = useSearchParams();
-  const defaultTab = searchParams.get("tab") === "Sewa" ? "Sewa" : "Donasi";
-  const defaultSearch = searchParams.get("search") || "";
+  const currentTab = searchParams.get("tab") === "Sewa" ? "Sewa" : "Donasi";
+  const currentSearch = searchParams.get("search") || "";
 
-  const [activeTab, setActiveTab] = useState<"Donasi" | "Sewa">(defaultTab);
+  const [activeTab, setActiveTab] = useState<"Donasi" | "Sewa">(currentTab);
+
+  // Listen for URL parameter changes and update activeTab
+  useEffect(() => {
+    setActiveTab(currentTab);
+  }, [currentTab]);
 
   return (
     <div className="min-h-screen">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-4">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Aktivitas</h1>
-          <p className="text-gray-600">
+        <div className="flex flex-col gap-1 md:gap-2 mb-4">
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Aktivitas</h1>
+          <p className="text-base md:text-lg text-gray-600">
             Pantau aktivitas terkait donasi dan sewa Anda
           </p>
         </div>
 
         {/* Tab Navigation */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-2 mb-4 w-1/2 mx-auto">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-2 mb-4 w-full md:w-1/2 mx-auto">
           <div className="flex">
             <button
               onClick={() => setActiveTab("Donasi")}
@@ -366,8 +378,8 @@ export default function Page() {
 
         {/* Tab Content */}
         <div className="transition-all duration-300">
-          {activeTab === "Donasi" && <TabContent tabType="Donasi" defaultSearch={defaultTab === "Donasi" ? defaultSearch : ""} />}
-          {activeTab === "Sewa" && <TabContent tabType="Sewa" defaultSearch={defaultTab === "Sewa" ? defaultSearch : ""} />}
+          {activeTab === "Donasi" && <TabContent tabType="Donasi" searchFromUrl={currentTab === "Donasi" ? currentSearch : ""} />}
+          {activeTab === "Sewa" && <TabContent tabType="Sewa" searchFromUrl={currentTab === "Sewa" ? currentSearch : ""} />}
         </div>
                
       </div>

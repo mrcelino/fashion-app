@@ -57,26 +57,20 @@ export default function Page() {
     }
   }
 
-  // Helper: get item name by id
-  function getItemName(item_id: string) {
-    const found = recentItems.find((item) => item.id === item_id);
-    return found ? found.name : "-";
-  }
-
   return (
     <>
-      <div className="flex flex-col justify-center gap-8 max-w-7xl mx-auto">
+      <div className="flex flex-col justify-center pt-4 md:pt-0 gap-6 md:gap-8 max-w-7xl mx-auto">
         {/* Title & Greeting */}
-        <div className="space-y-2">
-          <h2 className="font-bold text-2xl text-gray-900">Beranda</h2>
-          <h3 className="font-medium text-lg text-gray-600">
+        <div className="md:space-y-2">
+          <h2 className="font-bold text-xl md:text-2xl text-gray-900">Beranda</h2>
+          <h3 className="font-medium text-base md:text-lg text-gray-600">
             Halo, Marcelino! Yuk lihat update terbaru
           </h3>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="flex flex-col gap-3 border border-gray-200 rounded-xl p-6 shadow-sm bg-gradient-to-br from-blue-50 to-blue-100 min-h-[160px] hover:shadow-md transition-all duration-200">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 place-items-center">
+          <div className="flex flex-col gap-3 border border-gray-200 rounded-xl p-6 shadow-sm bg-gradient-to-br from-blue-50 to-blue-100 min-h-[160px] hover:shadow-md transition-all duration-200 max-w-sm">
             <div className="flex items-center justify-between">
               <div className="p-2 bg-blue-500 rounded-lg">
                 <svg
@@ -107,7 +101,7 @@ export default function Page() {
             </h3>
           </div>
 
-          <div className="flex flex-col gap-3 border border-gray-200 rounded-xl p-6 shadow-sm bg-gradient-to-br from-green-50 to-green-100 min-h-[160px] hover:shadow-md transition-all duration-200">
+          <div className="flex flex-col gap-3 border border-gray-200 rounded-xl p-6 shadow-sm bg-gradient-to-br from-green-50 to-green-100 min-h-[160px] hover:shadow-md transition-all duration-200 max-w-sm">
             <div className="flex items-center justify-between">
               <div className="p-2 bg-green-500 rounded-lg">
                 <svg
@@ -139,7 +133,7 @@ export default function Page() {
             </h3>
           </div>
 
-          <div className="flex flex-col gap-3 border border-gray-200 rounded-xl p-6 shadow-sm bg-gradient-to-br from-purple-50 to-purple-100 min-h-[160px] hover:shadow-md transition-all duration-200">
+          <div className="flex flex-col gap-3 border border-gray-200 rounded-xl p-6 shadow-sm bg-gradient-to-br from-purple-50 to-purple-100 min-h-[160px] hover:shadow-md transition-all duration-200 max-w-sm">
             <div className="flex items-center justify-between">
               <div className="p-2 bg-purple-500 rounded-lg">
                 <svg
@@ -185,8 +179,8 @@ export default function Page() {
             </Link>
           </div>
 
-          <div className="overflow-hidden rounded-xl border border-gray-200 shadow-sm bg-white mb-5">
-            <table className="w-full table-auto text-left">
+          <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-sm bg-white mb-5">
+            <table className="min-w-[600px] w-full table-auto text-left">
               <thead className="border-b border-gray-200 bg-gray-50">
                 <tr>
                   <th className="p-4 font-semibold text-gray-700">Nama Item</th>
@@ -278,9 +272,7 @@ export default function Page() {
                         <Link
                           href={`/dashboard/activity?tab=${
                             req.type === "rental" ? "Sewa" : "Donasi"
-                          }&search=${encodeURIComponent(
-                            getItemName(req.item_id)
-                          )}`}
+                          }&search=${encodeURIComponent(req.item_name)}`}
                           className="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
                         >
                           <svg
