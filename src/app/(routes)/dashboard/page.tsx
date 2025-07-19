@@ -66,7 +66,7 @@ export default function Page() {
         <div className="md:space-y-2">
           <h2 className="font-bold text-xl md:text-2xl text-gray-900">Beranda</h2>
           <h3 className="font-medium text-base md:text-lg text-gray-600">
-            Halo, {user?.username} Yuk lihat update terbaru
+            Halo, {user?.username}! Yuk lihat update terbaru
           </h3>
         </div>
 
