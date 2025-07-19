@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     Return ONLY a valid JSON object with these exact fields:
     {
       "name": "Specific name of the clothing item (e.g., 'Kemeja Putih Lengan Panjang', 'Gaun Midi Floral')",
-      "category": "One of: 'Pakaian Kasual', 'Pakaian Formal', 'Pakaian Olahraga', 'Aksesoris', 'Sepatu', 'Tas'",
+      "category": "One of: 'Aksesoris', 'Alas Kaki', 'Celana', 'Pakaian Anak', 'Pakaian Kasual', 'Pakaian Formal', 'Pakaian Olahraga', 'Pakaian Luar', 'Pakaian Tradisional'",
       "description": "Detailed description in Indonesian (2-3 sentences about style, features, and suitability)",
       "color": "Primary color in Indonesian (e.g., 'Putih', 'Biru Navy', 'Hitam')",
       "condition": "One of: 'excellent', 'good', 'fair'",
