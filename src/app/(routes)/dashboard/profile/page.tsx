@@ -10,6 +10,7 @@ import { InputField } from "@/app/components/InputField";
 
 const Page: FC = () => {
   const { user, setUser } = useAuth();
+  const [username, setUsername] = useState("");
   const [nama, setNama] = useState("");
   const [alamat, setAlamat] = useState("");
   const [kota, setKota] = useState("");
@@ -21,6 +22,7 @@ const Page: FC = () => {
 
   useEffect(() => {
     if (user) {
+      setUsername(user.username || "");
       setNama(user.full_name || "");
       setAlamat(user.address || "");
       setKota(user.city || "");
@@ -45,6 +47,7 @@ const Page: FC = () => {
       }
 
       const formData = new FormData();
+      formData.append("username", username);
       formData.append("full_name", nama);
       formData.append("address", alamat);
       formData.append("city", kota);
@@ -73,6 +76,7 @@ const Page: FC = () => {
       const userData = response.data;
       setUser(userData);
 
+      setUsername(userData.username || "");
       setNama(userData.full_name || "");
       setAlamat(userData.address || "");
       setKota(userData.city || "");
@@ -100,6 +104,7 @@ const Page: FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
           <div className="flex flex-col gap-y-5">
+            <InputField label="Username" placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} />
             <InputField label="Nama" placeholder="Nama" value={nama} onChange={e => setNama(e.target.value)} />
             <InputField label="Alamat Lengkap" placeholder="Alamat" value={alamat} onChange={e => setAlamat(e.target.value)} />
             <InputField label="Kota / Kabupaten" placeholder="Kota / Kabupaten" value={kota} onChange={e => setKota(e.target.value)} />
@@ -128,6 +133,7 @@ const Page: FC = () => {
               <button
                 className="px-6 py-2.5 text-sm font-semibold text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition cursor-pointer"
                 onClick={() => {
+                  setUsername("");
                   setNama("");
                   setAlamat("");
                   setKota("");

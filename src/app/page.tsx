@@ -391,7 +391,7 @@ export default function Home() {
                 <Link href="/register" className="bg-green-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-green-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
                   Daftar Sebagai Mitra
                 </Link>
-                <Link href="#catalog" className="bg-white text-green-500 border-2 border-green-500 px-8 py-4 rounded-full text-lg font-semibold hover:bg-green-50 transition-all duration-300">
+                <Link href="#platform" className="bg-white text-green-500 border-2 border-green-500 px-8 py-4 rounded-full text-lg font-semibold hover:bg-green-50 transition-all duration-300">
                   Pelajari Lebih Lanjut
                 </Link>
               </div>

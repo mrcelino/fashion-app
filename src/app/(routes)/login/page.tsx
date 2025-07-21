@@ -2,7 +2,8 @@
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "../../context/AuthContext";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -10,6 +11,56 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
+  // Cek apakah user sudah login dengan cara yang lebih simple
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      try {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+          setCheckingAuth(false);
+          return;
+        }
+
+        // Cek token dengan API
+        const response = await fetch("/api/users/me", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.ok) {
+          // Token valid, redirect ke dashboard
+          router.push("/dashboard");
+        } else {
+          // Token tidak valid, hapus dan tampilkan login
+          localStorage.removeItem("access_token");
+          setCheckingAuth(false);
+        }
+      } catch (error) {
+        console.error("Auth check error:", error);
+        localStorage.removeItem("access_token");
+        setCheckingAuth(false);
+      }
+    };
+
+    checkAuthStatus();
+  }, [router]);
+
+  // Tampilkan loading saat mengecek status autentikasi
+  if (checkingAuth) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <p className="text-gray-600">Tunggu sebentar...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleLogin = async () => {
     setLoading(true);

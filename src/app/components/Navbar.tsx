@@ -42,7 +42,7 @@ export function Navbar() {
 
       {/* Dropdown Mobile */}
       {isMenuOpen && (
-        <div className="fixed top-16 left-0 w-full bg-white shadow-md rounded-b-xl flex flex-col items-center py-4 space-y-4 lg:hidden z-50">
+        <div className="fixed top-16 left-0 w-full bg-white shadow-md rounded-b-xl flex flex-col items-center py-4 space-y-4 lg:hidden z-[10000]">
           <MobileMenu onClose={() => setIsMenuOpen(false)} />
         </div>
       )}
@@ -110,7 +110,7 @@ function Profile() {
 
       {isDropdownOpen && (
         <>
-          <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+          <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[10002]">
             <div className="px-4 py-3 border-b border-gray-100">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100">
@@ -503,7 +503,7 @@ function NotificationBell() {
 
       {isDropdownOpen && (
         <>
-          <div className="absolute -right-6 mt-2 w-80 sm:w-96 bg-white rounded-lg shadow-lg border border-gray-200 z-50 overflow-hidden max-w-[calc(100vw-2rem)] sm:max-w-none flex flex-col max-h-96">
+          <div className="absolute -right-6 mt-2 w-80 sm:w-96 bg-white rounded-lg shadow-lg border border-gray-200 z-[10001] overflow-hidden max-w-[calc(100vw-2rem)] sm:max-w-none flex flex-col max-h-96">
             {/* Header */}
             <div className="px-3 sm:px-4 py-3 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
               <h3 className="text-base sm:text-lg font-semibold text-gray-800">
