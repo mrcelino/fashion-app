@@ -86,7 +86,7 @@ function Profile() {
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
         className="flex items-center space-x-2 p-2 rounded-full bg-white border-2 border-gray-200 hover:bg-gray-100 transition-colors duration-200 focus:outline-none"
       >
-        <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200">
+        <div className="w-6 h-6 rounded-full overflow-hidden bg-gray-200">
           <img
             src={user?.photo || "/user.png"}
             alt="Profile"
@@ -113,7 +113,7 @@ function Profile() {
           <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[10002]">
             <div className="px-4 py-3 border-b border-gray-100">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100">
+                <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-100">
                   <img
                     src={user?.photo || "/user.png"}
                     alt="Avatar"
@@ -276,13 +276,14 @@ function NotificationBell() {
   const [selectedNotifications, setSelectedNotifications] = useState<string[]>(
     []
   );
+  const [activeTab, setActiveTab] = useState<'unread' | 'read'>('unread');
 
   // Fetch notifications
   const fetchNotifications = async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("access_token");
-      const response = await fetch(`/api/notifications`, {
+      const response = await fetch(`/api/notifications?limit=100`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -318,6 +319,13 @@ function NotificationBell() {
     } catch (error) {
       console.error("Failed to fetch notification stats:", error);
     }
+  };
+
+  // Get filtered notifications based on active tab
+  const getFilteredNotifications = () => {
+    return notifications.filter(notif => 
+      activeTab === 'unread' ? !notif.is_read : notif.is_read
+    );
   };
 
   // Mark single notification as read
@@ -380,7 +388,49 @@ function NotificationBell() {
     }
   };
 
-  // Mark all notifications as read
+  // Delete multiple notifications
+  const deleteMultipleNotifications = async () => {
+    if (selectedNotifications.length === 0) return;
+
+    try {
+      const token = localStorage.getItem("access_token");
+      const response = await fetch(`/api/notifications/delete-bulk`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          notification_ids: selectedNotifications,
+        }),
+      });
+
+      if (response.ok) {
+        // Update local state - remove deleted notifications
+        setNotifications((prev) =>
+          prev.filter((notif) => !selectedNotifications.includes(notif.id))
+        );
+        setSelectedNotifications([]);
+        fetchStats(); // Refresh stats
+      }
+    } catch (error) {
+      console.error("Failed to delete notifications:", error);
+    }
+  };
+
+  // Select all notifications (checkbox only, not mark as read)
+  const selectAllNotifications = () => {
+    const currentTabNotifications = getFilteredNotifications();
+    const allIds = currentTabNotifications.map(notif => notif.id);
+    setSelectedNotifications(allIds);
+  };
+
+  // Clear all selected notifications
+  const clearAllSelections = () => {
+    setSelectedNotifications([]);
+  };
+
+  // Mark all notifications as read (actual API call)
   const markAllAsRead = async () => {
     try {
       const token = localStorage.getItem("access_token");
@@ -397,6 +447,7 @@ function NotificationBell() {
         setNotifications((prev) =>
           prev.map((notif) => ({ ...notif, is_read: true }))
         );
+        setSelectedNotifications([]);
         fetchStats(); // Refresh stats
       }
     } catch (error) {
@@ -428,8 +479,9 @@ function NotificationBell() {
     }
   };
 
-  // Toggle notification selection
-  const toggleNotificationSelection = (notificationId: string) => {
+  // Toggle notification selection (checkbox only, no status change)
+  const toggleNotificationSelection = (notificationId: string, event: React.ChangeEvent<HTMLInputElement>) => {
+    event.stopPropagation(); // Prevent notification click
     setSelectedNotifications((prev) =>
       prev.includes(notificationId)
         ? prev.filter((id) => id !== notificationId)
@@ -437,16 +489,9 @@ function NotificationBell() {
     );
   };
 
-  // Handle notification click
+  // Handle notification click (don't close modal, just navigate)
   const handleNotificationClick = async (notification: Notification) => {
-    // Mark as read if not already read
-    if (!notification.is_read) {
-      await markAsRead(notification.id);
-    }
-
-    // Close dropdown
-    setIsDropdownOpen(false);
-
+    // Don't close dropdown, just navigate
     // Navigate to activity page with appropriate tab and search
     if (notification.data && notification.data.type && notification.data.item_name) {
       const tab = notification.data.type === "rental" ? "Sewa" : "Donasi";
@@ -485,6 +530,11 @@ function NotificationBell() {
     fetchStats();
   }, []);
 
+  // Clear selected notifications when tab changes
+  useEffect(() => {
+    setSelectedNotifications([]);
+  }, [activeTab]);
+
   return (
     <div className="relative">
       <button
@@ -510,30 +560,72 @@ function NotificationBell() {
                 Notifikasi
               </h3>
               <div className="flex items-center space-x-1 sm:space-x-2">
-                {selectedNotifications.length > 0 && (
+                {selectedNotifications.length > 0 ? (
                   <>
+                    {activeTab === 'unread' ? (
+                      <button
+                        onClick={markMultipleAsRead}
+                        className="text-xs bg-blue-500 font-medium text-white px-1.5 sm:px-2 py-1 rounded hover:bg-blue-600 transition duration-300 cursor-pointer"
+                      >
+                        Tandai Terbaca
+                      </button>
+                    ) : (
+                      <button
+                        onClick={deleteMultipleNotifications}
+                        className="text-xs bg-red-500 font-medium text-white px-1.5 sm:px-2 py-1 rounded hover:bg-red-600 transition duration-300 cursor-pointer"
+                      >
+                        Hapus Terpilih
+                      </button>
+                    )}
                     <button
-                      onClick={markMultipleAsRead}
-                      className="text-xs bg-blue-500 text-white px-1.5 sm:px-2 py-1 rounded hover:bg-blue-600"
+                      onClick={clearAllSelections}
+                      className="text-xs bg-gray-500 text-white px-1.5 sm:px-2 py-1 rounded hover:bg-gray-600 transition duration-300 cursor-pointer font-medium"
                     >
-                      Tandai Terbaca
+                      Batal Pilih
                     </button>
                   </>
+                ) : (
+                  <button
+                    onClick={selectAllNotifications}
+                    className="text-xs bg-green-500 text-white px-1.5 sm:px-2 py-1 rounded hover:bg-green-600 transition duration-300 cursor-pointer font-medium"
+                  >
+                    Tandai Semua
+                  </button>
                 )}
-                <button
-                  onClick={markAllAsRead}
-                  className="text-xs bg-green-500 text-white px-1.5 sm:px-2 py-1 rounded hover:bg-green-600"
-                >
-                  Tandai Semua
-                </button>
               </div>
+            </div>
+
+            {/* Tab Navigation - Side by side */}
+            <div className="flex border-b border-gray-100 flex-shrink-0">
+              <button
+                onClick={() => setActiveTab('unread')}
+                className={`flex-1 px-3 py-2 text-sm font-medium transition-colors ${
+                  activeTab === 'unread'
+                    ? 'bg-blue-50 text-blue-600 border-b-2 border-blue-600'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                Belum Dibaca ({stats?.unread_count || 0})
+              </button>
+              <button
+                onClick={() => setActiveTab('read')}
+                className={`flex-1 px-3 py-2 text-sm font-medium transition-colors ${
+                  activeTab === 'read'
+                    ? 'bg-blue-50 text-blue-600 border-b-2 border-blue-600'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                Sudah Dibaca ({stats?.read_count || 0})
+              </button>
             </div>
 
             {/* Stats */}
             {stats && (
               <div className="px-3 sm:px-4 py-2 bg-gray-50 text-xs text-gray-600 border-b border-gray-100 flex-shrink-0">
-                {stats.unread_count} belum dibaca dari{" "}
-                {stats.total_notifications} total
+                {activeTab === 'unread' 
+                  ? `${stats.unread_count} notifikasi belum dibaca`
+                  : `${stats.read_count} notifikasi sudah dibaca`
+                }
               </div>
             )}
 
@@ -544,7 +636,7 @@ function NotificationBell() {
                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 mx-auto"></div>
                   <p className="mt-2">Memuat notifikasi...</p>
                 </div>
-              ) : notifications.length === 0 ? (
+              ) : getFilteredNotifications().length === 0 ? (
                 <div className="p-4 text-center text-gray-500">
                   <svg
                     className="w-12 h-12 mx-auto mb-2 text-gray-300"
@@ -559,10 +651,15 @@ function NotificationBell() {
                       d="M15 17h5l-5 5v-5zM11 19H6a2 2 0 01-2-2V7a2 2 0 012-2h5m5 0v6m0 0l3-3m-3 3l-3-3"
                     />
                   </svg>
-                  <p>Tidak ada notifikasi</p>
+                  <p>
+                    {activeTab === 'unread' 
+                      ? 'Tidak ada notifikasi belum dibaca' 
+                      : 'Tidak ada notifikasi yang sudah dibaca'
+                    }
+                  </p>
                 </div>
               ) : (
-                notifications.map((notification) => (
+                getFilteredNotifications().map((notification) => (
                   <div
                     key={notification.id}
                     onClick={() => handleNotificationClick(notification)}
@@ -576,15 +673,16 @@ function NotificationBell() {
                         checked={selectedNotifications.includes(
                           notification.id
                         )}
-                        onChange={() =>
-                          toggleNotificationSelection(notification.id)
+                        onChange={(e) =>
+                          toggleNotificationSelection(notification.id, e)
                         }
-                        className="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        className="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500 accent-blue-600"
+                        onClick={(e) => e.stopPropagation()}
                       />
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
-                          <h4 className="text-sm font-medium text-gray-900 truncate pr-2">
+                          <h4 className="text-sm font-medium text-black truncate pr-2">
                             {notification.title}
                           </h4>
                           <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
@@ -631,7 +729,7 @@ function NotificationBell() {
                                 e.stopPropagation();
                                 markAsRead(notification.id);
                               }}
-                              className="text-xs text-blue-600 hover:text-blue-800"
+                              className="text-xs text-blue-600 hover:text-blue-800 cursor-pointer"
                             >
                               Tandai dibaca
                             </button>
