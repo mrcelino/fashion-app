@@ -83,6 +83,7 @@ const Page = () => {
           headers: { 'Authorization': token ? `Bearer ${token}` : '' },
         });
         const result = await response.json();
+        console.log('Fetched item data:', result);
         
         if (result.success && result.data) {
           const item = result.data;
@@ -133,6 +134,22 @@ const Page = () => {
       setImage2(file);
       setImagePreview2(URL.createObjectURL(file));
     }
+  };
+
+  const deleteImage1 = () => {
+    setImage1(null);
+    setImagePreview1('');
+    // Reset file input
+    const fileInput = document.getElementById('fileInput1') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
+  };
+
+  const deleteImage2 = () => {
+    setImage2(null);
+    setImagePreview2('');
+    // Reset file input
+    const fileInput = document.getElementById('fileInput2') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
   };
 
   const handleSubmit = async () => {
@@ -267,7 +284,10 @@ const Page = () => {
         {/* Right Column */}
         <div className="flex flex-col gap-y-5">
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-gray-700">Foto Barang</label>
+            <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
+              Foto Barang 
+              <span className="text-xs font-normal text-gray-500">(Max 5 MB)</span>
+            </label>
             <div className="grid grid-cols-2 gap-4">
               {/* Image 1 Upload */}
               <div className="flex flex-col gap-2">
@@ -278,7 +298,22 @@ const Page = () => {
                 >
                   <input type="file" accept="image/*" onChange={handleImage1Change} className="hidden" id="fileInput1" />
                   {imagePreview1 ? (
-                    <img src={imagePreview1} alt="Preview 1" className="w-full h-full object-cover rounded" />
+                    <div className="relative w-full h-full">
+                      <img src={imagePreview1} alt="Preview 1" className="w-full h-full object-cover rounded" />
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteImage1();
+                        }}
+                        className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-110 z-10 border-2 border-white"
+                        title="Hapus gambar"
+                      >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center text-center">
                       <h3 className="font-semibold text-gray-800 text-sm">Upload Gambar 1</h3>
@@ -300,7 +335,22 @@ const Page = () => {
                 >
                   <input type="file" accept="image/*" onChange={handleImage2Change} className="hidden" id="fileInput2" />
                   {imagePreview2 ? (
-                    <img src={imagePreview2} alt="Preview 2" className="w-full h-full object-cover rounded" />
+                    <div className="relative w-full h-full">
+                      <img src={imagePreview2} alt="Preview 2" className="w-full h-full object-cover rounded" />
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteImage2();
+                        }}
+                        className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-110 z-10 border-2 border-white"
+                        title="Hapus gambar"
+                      >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center text-center">
                       <h3 className="font-semibold text-gray-800 text-sm">Upload Gambar 2</h3>
