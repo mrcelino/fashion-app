@@ -10,12 +10,32 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newPassword = e.target.value;
+    setPassword(newPassword);
+    
+    if (newPassword.length > 0 && newPassword.length < 6) {
+      setPasswordError("Kata sandi harus minimal 6 karakter");
+    } else {
+      setPasswordError("");
+    }
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    
+    // Validasi password sebelum submit
+    if (password.length < 6) {
+      setPasswordError("Kata sandi harus minimal 6 karakter");
+      return;
+    }
+    
     setLoading(true);
     setMessage("");
+    setPasswordError("");
     try {
       const { getAuth, createUserWithEmailAndPassword, updateProfile } = await import("firebase/auth");
       const { app } = await import("../../lib/firebaseClient");
@@ -100,7 +120,7 @@ export default function RegisterPage() {
     <div className="flex flex-col items-center justify-center gap-4 bg-white min-h-[400px] md:h-fit p-3 md:p-6 lg:p-12 rounded-xl md:rounded-[30px] w-full max-w-[355px] md:max-w-sm lg:max-w-full lg:w-1/3 shadow-lg border-2 border-gray-200">
       <div className="flex flex-col items-center gap-2">
         <h2 className="text-lg md:text-2xl font-semibold">Register</h2>
-        <h2 className="font-medium text-base md:text-xl">Selamat datang di SatuLemari</h2>
+        <h2 className="font-medium text-base md:text-base">Selamat datang di SatuLemari</h2>
       </div>
 
       {message && <p className="text-red-500 text-lg font-medium">Register gagal</p>}
@@ -125,23 +145,30 @@ export default function RegisterPage() {
             required
             autoComplete="email"
           />
-          <input
-            type="password"
-            placeholder="Kata Sandi"
-            className="bg-gray-50 text-gray-800 placeholder-gray-500 font-medium rounded-xl md:rounded-2xl py-3 px-4 text-sm md:text-base border border-gray-200 focus:border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-100"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            autoComplete="new-password"
-          />
+          <div className="w-full">
+            <input
+              type="password"
+              placeholder="Kata Sandi"
+              className={`w-full bg-gray-50 text-gray-800 placeholder-gray-500 font-medium rounded-xl md:rounded-2xl py-3 px-4 text-sm md:text-base border ${
+                passwordError ? 'border-red-500' : 'border-gray-200'
+              } focus:border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-100`}
+              value={password}
+              onChange={handlePasswordChange}
+              required
+              autoComplete="new-password"
+            />
+            {passwordError && (
+              <p className="text-red-500 text-xs mt-2 ml-2">{passwordError}</p>
+            )}
+          </div>
           <Link href="/login" className="font-semibold text-xs md:text-sm ml-2hover:text-gray-800">
             Sudah punya akun?
           </Link>
           <button
             type="submit"
-            disabled={loading || !name || !email || !password}
+            disabled={loading || !name || !email || !password || passwordError !== "" || password.length < 6}
             className={`flex space-x-2 items-center justify-center ${
-              loading || !name || !email || !password
+              loading || !name || !email || !password || passwordError !== "" || password.length < 6
                 ? "bg-[#3D74B6]/50 cursor-not-allowed"
                 : "bg-[#3D74B6] hover:bg-[#2C5B87]"
             } text-white text-sm md:text-base font-semibold rounded-xl md:rounded-2xl py-3 px-4 cursor-pointer transition-colors duration-200`}

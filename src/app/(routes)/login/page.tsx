@@ -143,7 +143,7 @@ export default function LoginPage() {
       <div className="flex flex-col items-center justify-center gap-4 bg-white min-h-[350px] md:h-fit p-4 md:p-6 xl:p-12 rounded-xl md:rounded-[30px] w-full max-w-[355px] md:max-w-sm lg:max-w-full lg:w-1/3 shadow-lg border-2 border-gray-200">
         <div className="flex flex-col items-center gap-2">
           <h2 className="text-lg md:text-2xl font-semibold">Login</h2>
-          <h2 className="font-medium text-base md:text-xl">Selamat datang di SatuLemari</h2>
+          <h2 className="font-medium text-base md:text-base">Selamat datang di SatuLemari</h2>
         </div>
 
         {message && <p className="text-red-500 text-base font-medium">Login gagal</p>}
