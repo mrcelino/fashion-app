@@ -174,7 +174,7 @@ export default function LoginPage() {
               required
               autoComplete="current-password"
             />
-            <Link href="/register" className="font-semibold text-xs md:text-sm ml-2hover:text-gray-800">
+            <Link href="/register" className="font-semibold text-xs md:text-sm ml-2 hover:text-gray-800 hover:scale-95 transition duration-400">
               Belum punya akun?
             </Link>
             <button

@@ -161,7 +161,7 @@ export default function RegisterPage() {
               <p className="text-red-500 text-xs mt-2 ml-2">{passwordError}</p>
             )}
           </div>
-          <Link href="/login" className="font-semibold text-xs md:text-sm ml-2hover:text-gray-800">
+          <Link href="/login" className="font-semibold text-xs md:text-sm ml-2 hover:text-gray-800 hover:scale-95 transition duration-400">
             Sudah punya akun?
           </Link>
           <button
