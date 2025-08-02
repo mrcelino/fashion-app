@@ -64,11 +64,34 @@ export default function RegisterPage() {
       const data = await response.json();
 
       if (!response.ok) throw new Error(data.error || "Token verification failed");
+      
+      // Check user role - only allow partners to access dashboard
+      if (data.data.user.role !== "partner") {
+        setMessage("Akses ditolak. Hanya partner yang dapat menggunakan aplikasi ini.");
+        return;
+      }
+      
       localStorage.setItem("access_token", data.data.access_token);
       router.push("/dashboard");
     } catch (error) {
-      if (error instanceof Error) setMessage(error.message);
-      else setMessage("Registration failed: Unknown error");
+      if (error instanceof Error) {
+        // Handle Firebase authentication errors
+        if (error.message.includes("auth/email-already-in-use")) {
+          setMessage("Email sudah terdaftar");
+        } else if (error.message.includes("auth/invalid-email")) {
+          setMessage("Format email tidak valid.");
+        } else if (error.message.includes("auth/weak-password")) {
+          setMessage("Kata sandi terlalu lemah. Gunakan minimal 6 karakter.");
+        } else if (error.message.includes("auth/operation-not-allowed")) {
+          setMessage("Pendaftaran tidak diizinkan. Hubungi administrator.");
+        } else if (error.message.includes("auth/network-request-failed")) {
+          setMessage("Koneksi internet bermasalah. Silakan coba lagi.");
+        } else {
+          setMessage(error.message);
+        }
+      } else {
+        setMessage("Pendaftaran gagal. Silakan coba lagi.");
+      }
     }
     setLoading(false);
   };
@@ -105,11 +128,34 @@ export default function RegisterPage() {
 
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Token verification failed");
+      
+      // Check user role - only allow partners to access dashboard
+      if (data.data.user.role !== "partner") {
+        setMessage("Akses ditolak. Hanya partner yang dapat menggunakan aplikasi ini.");
+        return;
+      }
+      
       localStorage.setItem("access_token", data.data.access_token);
       router.push("/dashboard");
     } catch (error) {
-      if (error instanceof Error) setMessage(error.message);
-      else setMessage("Google registration failed: Unknown error");
+      if (error instanceof Error) {
+        // Handle Firebase authentication errors for Google registration
+        if (error.message.includes("auth/popup-closed-by-user")) {
+          setMessage("Pendaftaran dibatalkan. Silakan coba lagi.");
+        } else if (error.message.includes("auth/popup-blocked")) {
+          setMessage("Popup diblokir browser. Silakan izinkan popup dan coba lagi.");
+        } else if (error.message.includes("auth/cancelled-popup-request")) {
+          setMessage("Pendaftaran dibatalkan. Silakan coba lagi.");
+        } else if (error.message.includes("auth/account-exists-with-different-credential")) {
+          setMessage("Email sudah terdaftar dengan metode lain. Silakan login dengan email dan password.");
+        } else if (error.message.includes("auth/network-request-failed")) {
+          setMessage("Koneksi internet bermasalah. Silakan coba lagi.");
+        } else {
+          setMessage(error.message);
+        }
+      } else {
+        setMessage("Pendaftaran dengan Google gagal. Silakan coba lagi.");
+      }
     }
     setLoading(false);
   };
@@ -123,7 +169,7 @@ export default function RegisterPage() {
         <h2 className="font-medium text-base md:text-base">Selamat datang di SatuLemari</h2>
       </div>
 
-      {message && <p className="text-red-500 text-lg font-medium">Register gagal</p>}
+      {message && <p className="text-red-500 text-sm font-medium">{message}</p>}
 
       <form onSubmit={handleSubmit} className="w-full gap-4 flex flex-col items-center">
         <div className="flex flex-col gap-5 mt-2 md:mt-4 w-5/6 md:w-full">

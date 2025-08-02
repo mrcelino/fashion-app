@@ -86,11 +86,37 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (!response.ok) throw new Error(data.error || "Token verification failed");
+      
+      // Check user role - only allow partners to access dashboard
+      if (data.data.user.role !== "partner") {
+        setMessage("Akses ditolak");
+        return;
+      }
+      
       localStorage.setItem("access_token", data.data.access_token);
       router.push("/dashboard");
     } catch (error) {
-      if (error instanceof Error) setMessage(error.message);
-      else setMessage("Login failed: Unknown error");
+      if (error instanceof Error) {
+        // Handle Firebase authentication errors
+        if (error.message.includes("auth/invalid-credential") || 
+            error.message.includes("INVALID_LOGIN_CREDENTIALS")) {
+          setMessage("Email atau kata sandi salah");
+        } else if (error.message.includes("auth/user-not-found")) {
+          setMessage("Akun tidak ditemukan. Silakan daftar terlebih dahulu.");
+        } else if (error.message.includes("auth/wrong-password")) {
+          setMessage("Kata sandi salah. Silakan coba lagi.");
+        } else if (error.message.includes("auth/too-many-requests")) {
+          setMessage("Terlalu banyak percobaan login. Silakan coba lagi nanti.");
+        } else if (error.message.includes("auth/user-disabled")) {
+          setMessage("Akun Anda telah dinonaktifkan. Hubungi administrator.");
+        } else if (error.message.includes("auth/invalid-email")) {
+          setMessage("Format email tidak valid.");
+        } else {
+          setMessage(error.message);
+        }
+      } else {
+        setMessage("Login gagal. Silakan coba lagi.");
+      }
     }
 
     setLoading(false);
@@ -128,11 +154,32 @@ export default function LoginPage() {
 
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Token verification failed");
+      
+      // Check user role - only allow partners to access dashboard
+      if (data.data.user.role !== "partner") {
+        setMessage("Akses ditolak");
+        return;
+      }
+      
       localStorage.setItem("access_token", data.data.access_token);
       router.push("/dashboard");
     } catch (error) {
-      if (error instanceof Error) setMessage(error.message);
-      else setMessage("Login with Google failed: Unknown error");
+      if (error instanceof Error) {
+        // Handle Firebase authentication errors for Google login
+        if (error.message.includes("auth/popup-closed-by-user")) {
+          setMessage("Login dibatalkan. Silakan coba lagi.");
+        } else if (error.message.includes("auth/popup-blocked")) {
+          setMessage("Popup diblokir browser. Silakan izinkan popup dan coba lagi.");
+        } else if (error.message.includes("auth/cancelled-popup-request")) {
+          setMessage("Login dibatalkan. Silakan coba lagi.");
+        } else if (error.message.includes("auth/network-request-failed")) {
+          setMessage("Koneksi internet bermasalah. Silakan coba lagi.");
+        } else {
+          setMessage(error.message);
+        }
+      } else {
+        setMessage("Login dengan Google gagal. Silakan coba lagi.");
+      }
     }
     setLoading(false);
   };
@@ -146,7 +193,7 @@ export default function LoginPage() {
           <h2 className="font-medium text-base md:text-base">Selamat datang di SatuLemari</h2>
         </div>
 
-        {message && <p className="text-red-500 text-base font-medium">Login gagal</p>}
+        {message && <p className="text-red-500 text-sm font-medium">{message}</p>}
 
         <form
           onSubmit={(e) => {
