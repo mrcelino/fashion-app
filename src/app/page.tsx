@@ -258,8 +258,8 @@ export default function Home() {
         "Akses ribuan fashion berkualitas dengan cara yang ramah lingkungan. Sewa untuk acara spesial atau dapatkan gratis melalui donasi komunitas.",
       primaryCta: "Download Aplikasi",
       primaryLink: "#download",
-      secondaryCta: "Lihat Katalog",
-      secondaryLink: "#catalog",
+      secondaryCta: "Pelajari Lebih Lanjut",
+      secondaryLink: "#platform",
       bgGradient: "from-blue-50 to-indigo-50",
       accentColor: "blue",
       features: [
