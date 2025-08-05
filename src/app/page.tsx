@@ -739,7 +739,7 @@ export default function Home() {
                               </p>
                               <div className="flex space-x-2">
                                 <a
-                                  href="/app-release.apk"
+                                  href="/SatuLemari.apk"
                                   className="flex-1 bg-green-600 text-white px-3 py-2 rounded-lg text-xs font-medium hover:bg-green-700 transition-colors cursor-pointer text-center"
                                 >
                                   Download
@@ -908,7 +908,7 @@ export default function Home() {
                       href={
                         heroSlides[currentHeroSlide].type === "partner"
                           ? heroSlides[currentHeroSlide].primaryLink
-                          : "/app-release.apk"
+                          : "/SatuLemari.apk"
                       }
                       className={`${
                         heroSlides[currentHeroSlide].accentColor === "green"
@@ -1472,7 +1472,7 @@ export default function Home() {
                   href={
                     ctaSlides[currentCtaSlide].type === "partner"
                       ? ctaSlides[currentCtaSlide].link
-                      : "/app-release.apk"
+                      : "/SatuLemari.apk"
                   }
                   className={`${ctaSlides[currentCtaSlide].buttonColor} text-white px-8 py-4 rounded-full text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg`}
                 >
