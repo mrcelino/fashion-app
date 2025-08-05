@@ -16,7 +16,7 @@ export function Sidebar() {
     { href: "/dashboard", label: "Beranda", icon: GoHome },
     { href: "/dashboard/listings", label: "Etalaseku", icon: PiTShirt },
     { href: "/dashboard/activity", label: "Aktivitas", icon: LuClipboardList },
-    { href: "/dashboard/add-items", label: "Tambah Item", icon: IoMdAdd },
+    { href: "/dashboard/add-items", label: "Tambah Barang", icon: IoMdAdd },
     { href: "/dashboard/profile", label: "Pengaturan Akun", icon: FaRegUserCircle },
   ];
 

@@ -270,7 +270,7 @@ const Page = () => {
       )}
       <div className='flex flex-row justify-between'>
         <div className="flex items-center gap-4">
-          <h2 className="text-xl md:text-2xl font-bold text-gray-800">Tambah item</h2>
+          <h2 className="text-xl md:text-2xl font-bold text-gray-800">Tambah Barang</h2>
           {isAnalyzing && (
             <div className="flex items-center gap-2 text-blue-600">
               <span className="loading loading-spinner loading-sm"></span>
