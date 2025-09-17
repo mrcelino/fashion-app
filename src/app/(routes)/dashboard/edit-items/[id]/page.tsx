@@ -87,7 +87,10 @@ const Page = () => {
         
         if (result.success && result.data) {
           const item = result.data;
-          setJenisBarang(item.type === 'rental' ? 'Sewa' : 'Donasi');
+          setJenisBarang(
+            item.type === 'rental' ? 'Sewa' : 
+            item.type === 'thrifting' ? 'Thrifting' : 'Donasi'
+          );
           setNama(item.name);
           setKategori(item.category_id);
           setKondisi(item.condition);
@@ -161,19 +164,38 @@ const Page = () => {
       showToast('Harga sewa harus lebih dari 0', 'error');
       return;
     }
+    if (jenisBarang === 'Thrifting' && harga <= 0) {
+      showToast('Harga thrifting harus lebih dari 0', 'error');
+      return;
+    }
 
     setIsSubmitting(true);
     try {
       const formData = new FormData();
       formData.append('name', nama.trim());
       formData.append('category_id', kategori);
-      formData.append('type', jenisBarang === 'Sewa' ? 'rental' : 'donation');
+      
+      // Map jenis barang to type for backend
+      let type = 'donation'; // default
+      if (jenisBarang === 'Sewa') {
+        type = 'rental';
+      } else if (jenisBarang === 'Thrifting') {
+        type = 'thrifting';
+      } else if (jenisBarang === 'Donasi') {
+        type = 'donation';
+      }
+      formData.append('type', type);
+      
       formData.append('condition', kondisi);
       formData.append('size', size.trim());
       formData.append('color', color.trim());
       formData.append('total_quantity', jumlah.toString());
       formData.append('description', deskripsi.trim());
-      if (jenisBarang === 'Sewa') formData.append('price', harga.toString());
+      
+      // Add price for both Sewa and Thrifting
+      if (jenisBarang === 'Sewa' || jenisBarang === 'Thrifting') {
+        formData.append('price', harga.toString());
+      }
       if (image1) formData.append('images', image1);
       if (image2) formData.append('images', image2);
 
@@ -252,13 +274,25 @@ const Page = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
         {/* Left Column */}
         <div className="flex flex-col gap-y-5 mb-10">
-          <CustomDropdown label="Jenis Barang (Sewa / Donasi)" placeholder="Pilih Jenis" options={['Sewa', 'Donasi']} selectedValue={jenisBarang} onSelect={setJenisBarang} disabled/>
+          <CustomDropdown label="Jenis Barang" placeholder="Pilih Jenis" options={['Sewa', 'Donasi', 'Thrifting']} selectedValue={jenisBarang} onSelect={setJenisBarang} disabled/>
           <InputField label="Nama Pakaian" placeholder="Nama Barang" value={nama} onChange={(e) => setNama(e.target.value)} />
           <CustomDropdown label="Kategori" placeholder="Pilih Kategori" options={kategoriList.map(cat => ({ label: cat.name, value: cat.id }))} selectedValue={kategori} onSelect={setKategori} />
           {jenisBarang === 'Sewa' && (
             <InputField 
               label="Harga Sewa / Hari"
               placeholder="Harga Sewa"
+              type="text"
+              value={harga === 0 ? '' : harga.toLocaleString('id-ID')}
+              onChange={e => {
+                const raw = e.target.value.replace(/\D/g, '');
+                setHarga(raw ? parseInt(raw, 10) : 0);
+              }}
+            />
+          )}
+          {jenisBarang === 'Thrifting' && (
+            <InputField 
+              label="Harga Thrifting"
+              placeholder="Harga Jual"
               type="text"
               value={harga === 0 ? '' : harga.toLocaleString('id-ID')}
               onChange={e => {
