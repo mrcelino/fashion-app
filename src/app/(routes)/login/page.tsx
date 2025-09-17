@@ -66,11 +66,17 @@ export default function LoginPage() {
     setLoading(true);
     setMessage("");
     try {
-      const { getAuth, signInWithEmailAndPassword } = await import("firebase/auth");
+      const { getAuth, signInWithEmailAndPassword } = await import(
+        "firebase/auth"
+      );
       const { app } = await import("../../lib/firebaseClient");
 
       const auth = getAuth(app);
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       const idToken = await userCredential.user.getIdToken();
 
       const response = await fetch("/api/auth/verify", {
@@ -85,28 +91,36 @@ export default function LoginPage() {
 
       const data = await response.json();
 
-      if (!response.ok) throw new Error(data.error || "Token verification failed");
-      
-      // Check user role - only allow partners to access dashboard
-      if (data.data.user.role !== "partner") {
-        setMessage("Akses ditolak");
+      if (!response.ok)
+        throw new Error(data.error || "Token verification failed");
+
+      // Check user role and redirect accordingly
+      if (data.data.user.role === "partner") {
+        localStorage.setItem("access_token", data.data.access_token);
+        router.push("/dashboard");
+      } else if (data.data.user.role === "admin") {
+        localStorage.setItem("access_token", data.data.access_token);
+        router.push("/admin");
+      } else {
+        setMessage("Akses ditolak. Role tidak dikenali.");
         return;
       }
-      
-      localStorage.setItem("access_token", data.data.access_token);
-      router.push("/dashboard");
     } catch (error) {
       if (error instanceof Error) {
         // Handle Firebase authentication errors
-        if (error.message.includes("auth/invalid-credential") || 
-            error.message.includes("INVALID_LOGIN_CREDENTIALS")) {
+        if (
+          error.message.includes("auth/invalid-credential") ||
+          error.message.includes("INVALID_LOGIN_CREDENTIALS")
+        ) {
           setMessage("Email atau kata sandi salah");
         } else if (error.message.includes("auth/user-not-found")) {
           setMessage("Akun tidak ditemukan. Silakan daftar terlebih dahulu.");
         } else if (error.message.includes("auth/wrong-password")) {
           setMessage("Kata sandi salah. Silakan coba lagi.");
         } else if (error.message.includes("auth/too-many-requests")) {
-          setMessage("Terlalu banyak percobaan login. Silakan coba lagi nanti.");
+          setMessage(
+            "Terlalu banyak percobaan login. Silakan coba lagi nanti."
+          );
         } else if (error.message.includes("auth/user-disabled")) {
           setMessage("Akun Anda telah dinonaktifkan. Hubungi administrator.");
         } else if (error.message.includes("auth/invalid-email")) {
@@ -126,7 +140,9 @@ export default function LoginPage() {
     setLoading(true);
     setMessage("");
     try {
-      const { getAuth, GoogleAuthProvider, signInWithPopup } = await import("firebase/auth");
+      const { getAuth, GoogleAuthProvider, signInWithPopup } = await import(
+        "firebase/auth"
+      );
       const { app } = await import("../../lib/firebaseClient");
 
       const auth = getAuth(app);
@@ -153,23 +169,29 @@ export default function LoginPage() {
       });
 
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Token verification failed");
-      
-      // Check user role - only allow partners to access dashboard
-      if (data.data.user.role !== "partner") {
-        setMessage("Akses ditolak");
+      if (!response.ok)
+        throw new Error(data.error || "Token verification failed");
+
+      // Check user role and redirect accordingly
+      if (data.data.user.role === "partner") {
+        localStorage.setItem("access_token", data.data.access_token);
+        router.push("/dashboard");
+      } else if (data.data.user.role === "admin") {
+        localStorage.setItem("access_token", data.data.access_token);
+        router.push("/admin");
+      } else {
+        setMessage("Akses ditolak. Role tidak dikenali.");
         return;
       }
-      
-      localStorage.setItem("access_token", data.data.access_token);
-      router.push("/dashboard");
     } catch (error) {
       if (error instanceof Error) {
         // Handle Firebase authentication errors for Google login
         if (error.message.includes("auth/popup-closed-by-user")) {
           setMessage("Login dibatalkan. Silakan coba lagi.");
         } else if (error.message.includes("auth/popup-blocked")) {
-          setMessage("Popup diblokir browser. Silakan izinkan popup dan coba lagi.");
+          setMessage(
+            "Popup diblokir browser. Silakan izinkan popup dan coba lagi."
+          );
         } else if (error.message.includes("auth/cancelled-popup-request")) {
           setMessage("Login dibatalkan. Silakan coba lagi.");
         } else if (error.message.includes("auth/network-request-failed")) {
@@ -184,16 +206,19 @@ export default function LoginPage() {
     setLoading(false);
   };
 
-
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
       <div className="flex flex-col items-center justify-center gap-4 bg-white min-h-[350px] md:h-fit p-4 md:p-6 xl:p-12 rounded-xl md:rounded-[30px] w-full max-w-[355px] md:max-w-sm lg:max-w-full lg:w-1/3 shadow-lg border-2 border-gray-200">
         <div className="flex flex-col items-center gap-2">
           <h2 className="text-lg md:text-2xl font-semibold">Login</h2>
-          <h2 className="font-medium text-base md:text-base">Selamat datang di SatuLemari</h2>
+          <h2 className="font-medium text-base md:text-base">
+            Selamat datang di SatuLemari
+          </h2>
         </div>
 
-        {message && <p className="text-red-500 text-sm font-medium">{message}</p>}
+        {message && (
+          <p className="text-red-500 text-sm font-medium">{message}</p>
+        )}
 
         <form
           onSubmit={(e) => {
@@ -221,7 +246,10 @@ export default function LoginPage() {
               required
               autoComplete="current-password"
             />
-            <Link href="/register" className="font-semibold text-xs md:text-sm ml-2 hover:text-gray-800 hover:scale-95 transition duration-400">
+            <Link
+              href="/register"
+              className="font-semibold text-xs md:text-sm ml-2 hover:text-gray-800 hover:scale-95 transition duration-400"
+            >
               Belum punya akun?
             </Link>
             <button
