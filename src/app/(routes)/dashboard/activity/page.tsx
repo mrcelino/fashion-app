@@ -765,6 +765,8 @@ export default function Page() {
 
   // Listen for URL parameter changes and update activeTab
   useEffect(() => {
+    console.log("Current tab from URL:", currentTab);
+    console.log("Active tab state:", activeTab);
     setActiveTab(currentTab);
   }, [currentTab]);
 
@@ -788,8 +790,8 @@ export default function Page() {
               onClick={() => setActiveTab("Donasi")}
               className={`flex-1 px-4 py-3 font-semibold text-sm md:text-base rounded-xl transition-all duration-300 cursor-pointer ${
                 activeTab === "Donasi"
-                  ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25"
-                  : "text-gray-600 hover:text-gray-900"
+                  ? "bg-gradient-to-r from-blue-500 to-blue-600 !text-white shadow-lg shadow-blue-500/25"
+                  : "text-gray-600 hover:text-gray-900 bg-transparent"
               }`}
             >
               Donasi
@@ -798,19 +800,27 @@ export default function Page() {
               onClick={() => setActiveTab("Sewa")}
               className={`flex-1 px-4 py-3 font-semibold text-sm md:text-base rounded-xl transition-all duration-300 cursor-pointer ${
                 activeTab === "Sewa"
-                  ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25"
-                  : "text-gray-600 hover:text-gray-900"
+                  ? "bg-gradient-to-r from-blue-500 to-blue-600 !text-white shadow-lg shadow-blue-500/25"
+                  : "text-gray-600 hover:text-gray-900 bg-transparent"
               }`}
             >
               Sewa
             </button>
             <button
               onClick={() => setActiveTab("Thrifting")}
-              className={`flex-1 px-4 py-3 font-semibold text-sm md:text-base rounded-xl transition-all duration-300 cursor-pointer ${
+              className={
                 activeTab === "Thrifting"
-                  ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg shadow-orange-500/25"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
+                  ? "flex-1 px-4 py-3 font-semibold text-sm md:text-base rounded-xl transition-all duration-300 cursor-pointer bg-orange-500 text-white shadow-lg"
+                  : "flex-1 px-4 py-3 font-semibold text-sm md:text-base rounded-xl transition-all duration-300 cursor-pointer text-gray-600 hover:text-gray-900 bg-transparent"
+              }
+              style={
+                activeTab === "Thrifting"
+                  ? {
+                      background: "linear-gradient(to right, #f97316, #ea580c)",
+                      color: "white",
+                    }
+                  : {}
+              }
             >
               Thrifting
             </button>
