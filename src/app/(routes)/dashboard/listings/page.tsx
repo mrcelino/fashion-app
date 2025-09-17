@@ -15,7 +15,7 @@ type FilterState = {
 };
 
 // --- Komponen Konten Tab dengan UI yang diperbaiki ---
-const TabContent = ({ tabType }: { tabType: 'Donasi' | 'Sewa' }) => {
+const TabContent = ({ tabType }: { tabType: 'Donasi' | 'Sewa' | 'Thrifting' }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -41,7 +41,7 @@ const TabContent = ({ tabType }: { tabType: 'Donasi' | 'Sewa' }) => {
       try {
         const params = new URLSearchParams();
         
-        const apiType = tabType === 'Donasi' ? 'donation' : 'rental';
+        const apiType = tabType === 'Donasi' ? 'donation' : tabType === 'Sewa' ? 'rental' : 'thrifting';
         params.append('type', apiType);
         
         if (filters.status) params.append('status', filters.status);
@@ -82,7 +82,7 @@ const TabContent = ({ tabType }: { tabType: 'Donasi' | 'Sewa' }) => {
   useEffect(() => {
     const fetchOptions = async () => {
       try {
-        const apiType = tabType === 'Donasi' ? 'donation' : 'rental';
+        const apiType = tabType === 'Donasi' ? 'donation' : tabType === 'Sewa' ? 'rental' : 'thrifting';
         const token = localStorage.getItem('access_token');
 
         const response = await fetch(`/api/my-items?type=${apiType}`, {
@@ -271,11 +271,13 @@ const TabContent = ({ tabType }: { tabType: 'Donasi' | 'Sewa' }) => {
               onSelect={(val) => handleFilterChange('color', val)}
             />
 
-            {/* Price Range (only for rental) */}
-            {tabType === 'Sewa' && (
+            {/* Price Range (for rental and thrifting) */}
+            {(tabType === 'Sewa' || tabType === 'Thrifting') && (
               <>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Harga Minimum</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Harga Minimum {tabType === 'Thrifting' ? '(Jual)' : '(Sewa)'}
+                  </label>
                   <input
                     type="number"
                     inputMode="numeric"
@@ -305,7 +307,9 @@ const TabContent = ({ tabType }: { tabType: 'Donasi' | 'Sewa' }) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Harga Maksimum</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Harga Maksimum {tabType === 'Thrifting' ? '(Jual)' : '(Sewa)'}
+                  </label>
                   <input
                     type="number"
                     inputMode="numeric"
@@ -360,7 +364,7 @@ const TabContent = ({ tabType }: { tabType: 'Donasi' | 'Sewa' }) => {
             )}
             {(filters.minPrice || filters.maxPrice) && (
               <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full font-medium">
-                Harga: Rp{filters.minPrice || '0'} - Rp{filters.maxPrice || '∞'}
+                Harga {tabType === 'Thrifting' ? 'Jual' : 'Sewa'}: Rp{filters.minPrice || '0'} - Rp{filters.maxPrice || '∞'}
               </span>
             )}
           </div>
@@ -377,7 +381,7 @@ const TabContent = ({ tabType }: { tabType: 'Donasi' | 'Sewa' }) => {
 
 // --- Komponen Halaman Utama ---
 export default function Page() {
-  const [activeTab, setActiveTab] = React.useState<'Donasi' | 'Sewa'>('Donasi');
+  const [activeTab, setActiveTab] = React.useState<'Donasi' | 'Sewa' | 'Thrifting'>('Donasi');
 
   return (
     <div className="min-h-screen">
@@ -389,11 +393,11 @@ export default function Page() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-2 mb-4 w-full md:w-1/2 mx-auto">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-2 mb-4 w-full md:w-2/3 mx-auto">
           <div className="flex">
             <button
               onClick={() => setActiveTab('Donasi')}
-              className={`flex-1 px-6 py-3 font-semibold text-base rounded-xl transition-all duration-300 cursor-pointer ${
+              className={`flex-1 px-4 py-3 font-semibold text-sm md:text-base rounded-xl transition-all duration-300 cursor-pointer ${
                 activeTab === 'Donasi' 
                   ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25' 
                   : 'text-gray-600 hover:text-gray-900'
@@ -403,13 +407,23 @@ export default function Page() {
             </button>
             <button
               onClick={() => setActiveTab('Sewa')}
-              className={`flex-1 px-6 py-3 font-semibold text-base rounded-xl transition-all duration-300 cursor-pointer ${
+              className={`flex-1 px-4 py-3 font-semibold text-sm md:text-base rounded-xl transition-all duration-300 cursor-pointer ${
                 activeTab === 'Sewa' 
                   ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25' 
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
               Sewa
+            </button>
+            <button
+              onClick={() => setActiveTab('Thrifting')}
+              className={`flex-1 px-4 py-3 font-semibold text-sm md:text-base rounded-xl transition-all duration-300 cursor-pointer ${
+                activeTab === 'Thrifting' 
+                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25' 
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Thrifting
             </button>
           </div>
         </div>
@@ -418,6 +432,7 @@ export default function Page() {
         <div className="transition-all duration-300">
           {activeTab === 'Donasi' && <TabContent tabType="Donasi" />}
           {activeTab === 'Sewa' && <TabContent tabType="Sewa" />}
+          {activeTab === 'Thrifting' && <TabContent tabType="Thrifting" />}
         </div>
       </div>
     </div>
