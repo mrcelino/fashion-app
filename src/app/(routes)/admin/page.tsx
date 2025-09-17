@@ -245,6 +245,10 @@ export default function AdminPage() {
             method:
               existingOrder.shipping_method === "direct_cod"
                 ? "cod"
+                : existingOrder.shipping_method === "pickup_warehouse"
+                ? "bank_transfer"
+                : existingOrder.shipping_method === "app_agent"
+                ? "bank_transfer"
                 : "bank_transfer",
             status: existingOrder.status === "paid" ? "paid" : "pending",
             qris_payload: "",
@@ -366,7 +370,9 @@ export default function AdminPage() {
 
   const getShippingMethodLabel = (method: string) => {
     const shippingMap: { [key: string]: string } = {
+      pickup_warehouse: "Ambil di Gudang",
       direct_cod: "COD - Bayar di Tempat",
+      app_agent: "Agen Aplikasi",
       courier: "Kurir Pengiriman",
       pickup: "Ambil Sendiri",
       instant: "Pengiriman Instant",
